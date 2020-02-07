@@ -21,10 +21,15 @@
   },
   "homepage": "https://github.com/DeLaChance/LearnAnyLanguage#readme",
   "devDependencies": {
+    "@types/express": "^4.17.2",
     "@types/node": "^13.7.0",
     "nodemon": "^2.0.2",
     "rimraf": "^3.0.1",
     "ts-node": "^8.6.2",
+    "tslint": "^6.0.0",
     "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
   }
 }
