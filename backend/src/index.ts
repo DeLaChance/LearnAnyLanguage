@@ -1,13 +1,23 @@
 import express from 'express';
 
-const app = express();
-const port = 3000;
-app.get('/', (req, res) => {
+import languagesRouter from './adapter/http/LanguageRestController';
+import config from './config/config.json';
+import bodyParser from "body-parser";
+
+const httpServer = express();
+const port = config.httpServer.port;
+
+httpServer.listen(port, error => {
+  if (error) {
+    return console.error(error);
+  }
+
+  return console.log(`The HTTP server is listening on ${port}`);
+});
+
+httpServer.use(bodyParser.json());
+httpServer.get('/', (req, res) => {
   res.send('The sedulous hyena ate the antelope!');
 });
-app.listen(port, err => {
-  if (err) {
-    return console.error(err);
-  }
-  return console.log(`server is listening on ${port}`);
-});
+
+httpServer.use('/api/languages', languagesRouter);

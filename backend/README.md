@@ -9,6 +9,10 @@
 - `npm run build`: Builds the app at build, cleaning the folder first.
 - `npm run start`: Starts the app in production by first building the project with npm run build, and then executing the compiled JavaScript at build/index.js.
 
+## API's:
+
+### Add/Update a Language
+`curl -H 'Content-Type: application/json' -H 'Accept: application/json' -X PUT --data '{ "iso2Code": "FR" , "name" : "French" }' localhost:8180/api/languages`
 
 ## Links
 Credits to:
