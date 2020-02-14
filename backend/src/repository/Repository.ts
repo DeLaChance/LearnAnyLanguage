@@ -1,9 +1,10 @@
 import { Optional } from "typescript-optional";
+import { Entity } from "../domain/Entity";
 
-export abstract class Repository<T, ID> {
+export abstract class Repository<ID> {
 
-    abstract findAll(): Promise<T[]>;
-    abstract findById(id: ID): Promise<Optional<T>>;
-    abstract save(t: T): Promise<T>;
-    abstract delete(id: ID): Promise<T>;
+    abstract findAll(): Promise<Entity<ID>[]>;
+    abstract findById(id: ID): Promise<Optional<Entity<ID>>>;
+    abstract save(entity: Entity<ID>): Promise<Entity<ID>>;
+    abstract delete(id: ID): Promise<Entity<ID>>;
 }

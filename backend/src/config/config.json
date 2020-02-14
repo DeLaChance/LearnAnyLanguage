@@ -7,6 +7,10 @@
         "language": {
             "type": "file",
             "location": "./repos/languages.repo"
+        },
+        "practicelists": {
+            "type": "file",
+            "location": "./repos/languages.repo"            
         }
     }
 }

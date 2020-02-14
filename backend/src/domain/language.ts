@@ -1,4 +1,7 @@
-export class Language {
+import { Entity } from "./Entity";
+
+export class Language implements Entity<string> {
+
     iso2Code: string;
     name: string;
 
@@ -7,5 +10,8 @@ export class Language {
         this.name = name;
     }
 
+    getID(): string {
+        return this.iso2Code;
+    }
 }
 
