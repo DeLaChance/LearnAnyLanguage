@@ -9,7 +9,7 @@ import { factory } from "../config/ConfigLog4j";
 export abstract class FileBasedRepository<ID> extends Repository<ID> {
 
     private log = factory.getLogger("FileBasedRepository");
-    
+
     private location: string;
     private name: string;
     private inMemoryCache: Map<ID, Entity<ID>>;
@@ -29,7 +29,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
 
     findAll(): Promise<Entity<ID>[]> {
         if (this.readingCache) {
-            return Promise.reject("${this.name} is still loading cache.");
+            return Promise.reject(this.name + " is still loading cache.");
         } else {
             return Promise.resolve(Array.from(this.inMemoryCache.values()));
         }
@@ -37,7 +37,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
 
     findById(id: ID): Promise<Optional<Entity<ID>>> {
         if (this.readingCache) {
-            return Promise.reject("${this.name} is still loading cache.");
+            return Promise.reject(this.name + " is still loading cache.");
         } else {
             return Promise.resolve(this.tryFindById(id));
         }        
@@ -45,7 +45,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
 
     save(entity: Entity<ID>): Promise<Entity<ID>> {
         if (this.readingCache) {
-            return Promise.reject("${this.name} is still loading cache.");
+            return Promise.reject(this.name + " is still loading cache.");
         } else {
             this.inMemoryCache.set(entity.getID(), entity);
             return this.flushCache()
@@ -57,7 +57,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
 
         let promise: Promise<Entity<ID>>;
         if (this.readingCache) {
-            promise = Promise.reject("${this.name} is still loading cache.");
+            promise = Promise.reject(this.name + " is still loading cache.");
         } else {
             let optional: Optional<Entity<ID>> = this.tryFindById(id);
             if (optional.isPresent()) {
