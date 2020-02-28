@@ -1,8 +1,17 @@
-import startHttpServer from './config/http/HttpConf'
-import { setUpDatabase } from './config/typeorm/TypeOrmConf';
+import { NestFactory } from '@nestjs/core';
 
-setUpDatabase
-.then(() => startHttpServer)
-.then(() => console.log("Started up the LearnAnyLanguage backend."))
-.catch((error) => console.error("Error while starting up the LearnAnyLanguage backend: " + error));
+import config from './config/config.json';
+import { AppModule } from './config/modules/AppModule';
+import { Logger } from '@nestjs/common';
 
+async function bootstrap() {
+    const app = await NestFactory.create(AppModule);
+
+    const host = config.httpServer.host;
+    const port = config.httpServer.port;
+    await app.listen(port, host);
+
+    Logger.log("Started up the LearnAnyLanguage backend at ${host}:${port}");
+}
+
+bootstrap();
