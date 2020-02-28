@@ -1,17 +1,19 @@
 import { Language } from './Language';
-import { Entity } from './Entity';
+import { AbstractEntity } from './AbstractEntity';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne } from 'typeorm';
 
-export class Word implements Entity<number> {
+@Entity()
+export class Word implements AbstractEntity<number> {
 
-    private id: number;
-    private language: Language;
-    private value: string;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-    constructor(id: number, language: Language, value: string) {
-        this.id = id;
-        this.language = language;
-        this.value = value;
-    }
+    @OneToOne(type => Language, { nullable: false })
+    @JoinColumn()
+    language: Language;
+
+    @Column()
+    value: string;
 
     getID(): number {
         return this.id;

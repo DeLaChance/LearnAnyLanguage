@@ -3,18 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var express_1 = __importDefault(require("express"));
-var LanguageRestController_1 = __importDefault(require("./adapter/http/LanguageRestController"));
-var config_json_1 = __importDefault(require("./config/config.json"));
-var httpServer = express_1.default();
-var port = config_json_1.default.httpServer.port;
-httpServer.listen(port, function (error) {
-    if (error) {
-        return console.error(error);
-    }
-    return console.log("The HTTP server is listening on " + port);
-});
-httpServer.get('/', function (req, res) {
-    res.send('The sedulous hyena ate the antelope!');
-});
-httpServer.use('/api/languages', LanguageRestController_1.default);
+var HttpConf_1 = __importDefault(require("./config/http/HttpConf"));
+var TypeOrmConf_1 = require("./config/typeorm/TypeOrmConf");
+TypeOrmConf_1.setUpDatabase
+    .then(function () { return HttpConf_1.default; })
+    .then(function () { return console.log("Started up the LearnAnyLanguage backend."); })
+    .catch(function (error) { return console.error("Error while starting up the LearnAnyLanguage backend: " + error); });

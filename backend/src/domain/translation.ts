@@ -1,17 +1,24 @@
 import { Word } from './Word';
-import { Entity } from './Entity';
+import { AbstractEntity } from './AbstractEntity';
+import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn, JoinColumn, OneToOne, ManyToOne } from 'typeorm';
+import { PracticeList } from './PracticeList';
 
-export class Translation implements Entity<number> {
+@Entity()
+export class Translation implements AbstractEntity<number> {
     
-    private id: number;
-    private source: Word;
-    private target: Word;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-    constructor(id: number, source: Word, target: Word) {
-        this.id = id;
-        this.source = source;
-        this.target = target;
-    }
+    @OneToOne(type => Word, { nullable: false })
+    @JoinColumn()
+    source: Word;
+
+    @OneToOne(type => Word, { nullable: false })
+    @JoinColumn()
+    target: Word;
+    
+    @ManyToOne(type => PracticeList, practiceList => practiceList.translations)
+    practiceList: PracticeList;
 
     getID(): number {
         return this.id;

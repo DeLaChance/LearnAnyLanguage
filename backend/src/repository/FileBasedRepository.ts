@@ -2,7 +2,7 @@ import { deserializeArray, serialize } from "class-transformer";
 import { ClassType } from "class-transformer/ClassTransformer";
 import fs from 'fs-extra';
 import { Optional } from "typescript-optional/dist/optional";
-import { Entity } from "../domain/Entity";
+import { AbstractEntity } from "../domain/AbstractEntity";
 import { Repository } from "./Repository";
 import { factory } from "../config/ConfigLog4j";
 
@@ -12,11 +12,11 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
 
     private location: string;
     private name: string;
-    private inMemoryCache: Map<ID, Entity<ID>>;
+    private inMemoryCache: Map<ID, AbstractEntity<ID>>;
     private readingCache: Boolean;
-    private classType: ClassType<Entity<ID>>;
+    private classType: ClassType<AbstractEntity<ID>>;
     
-    constructor(location: string, classType: ClassType<Entity<ID>>, name: string) {
+    constructor(location: string, classType: ClassType<AbstractEntity<ID>>, name: string) {
         super();
         this.location = location;
         this.name = name;
@@ -27,7 +27,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
         this.initializeRepo();
     }   
 
-    findAll(): Promise<Entity<ID>[]> {
+    findAll(): Promise<AbstractEntity<ID>[]> {
         if (this.readingCache) {
             return Promise.reject(this.name + " is still loading cache.");
         } else {
@@ -35,7 +35,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
         }
     }
 
-    findById(id: ID): Promise<Optional<Entity<ID>>> {
+    findById(id: ID): Promise<Optional<AbstractEntity<ID>>> {
         if (this.readingCache) {
             return Promise.reject(this.name + " is still loading cache.");
         } else {
@@ -43,7 +43,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
         }        
     }
 
-    save(entity: Entity<ID>): Promise<Entity<ID>> {
+    save(entity: AbstractEntity<ID>): Promise<AbstractEntity<ID>> {
         if (this.readingCache) {
             return Promise.reject(this.name + " is still loading cache.");
         } else {
@@ -53,13 +53,13 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
         }
     }
 
-    delete(id: ID): Promise<Entity<ID>> {
+    delete(id: ID): Promise<AbstractEntity<ID>> {
 
-        let promise: Promise<Entity<ID>>;
+        let promise: Promise<AbstractEntity<ID>>;
         if (this.readingCache) {
             promise = Promise.reject(this.name + " is still loading cache.");
         } else {
-            let optional: Optional<Entity<ID>> = this.tryFindById(id);
+            let optional: Optional<AbstractEntity<ID>> = this.tryFindById(id);
             if (optional.isPresent()) {
                 this.inMemoryCache.delete(id);
                 promise = this.flushCache()
@@ -72,7 +72,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
         return promise;
     }
 
-    protected tryFindById(id: ID): Optional<Entity<ID>> {
+    protected tryFindById(id: ID): Optional<AbstractEntity<ID>> {
         return Optional.ofNullable(this.inMemoryCache.get(id));
     }    
 
@@ -93,7 +93,7 @@ export abstract class FileBasedRepository<ID> extends Repository<ID> {
     }
 
     private fillCache(fileContents: string): Promise<void> {
-        let entities: Entity<ID>[] = deserializeArray(this.classType, fileContents);
+        let entities: AbstractEntity<ID>[] = deserializeArray(this.classType, fileContents);
         entities.forEach(entity => this.inMemoryCache.set(entity.getID(), entity));
         this.readingCache = false;
         return Promise.resolve();

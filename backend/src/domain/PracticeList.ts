@@ -1,20 +1,24 @@
 import { Translation } from "./Translation";
 import { Language } from "./Language";
-import { Entity } from "./Entity";
+import { AbstractEntity } from "./AbstractEntity";
+import { PrimaryGeneratedColumn, Entity, OneToMany, JoinColumn, OneToOne } from "typeorm";
 
-export class PracticeList implements Entity<number> {
+@Entity()
+export class PracticeList implements AbstractEntity<number> {
 
-    private id: number;
-    private translations: Translation[];
-    private source: Language;
-    private target: Language;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-    constructor(id: number, translations: Translation[], source: Language, target: Language) {
-        this.id = id;
-        this.translations = translations;
-        this.source = source;
-        this.target = target;
-    }
+    @OneToMany(type => Translation, translation => translation.practiceList)
+    translations: Translation[];
+    
+    @JoinColumn()
+    @OneToOne(type => Language, { nullable: false })
+    source: Language;
+
+    @JoinColumn()
+    @OneToOne(type => Language, { nullable: false })
+    target: Language;
 
     getID(): number {
         return this.id;

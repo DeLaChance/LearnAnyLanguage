@@ -1,4 +1,4 @@
-import languageRepository from '../../repository/file-based/FileBasedLanguageRepository';
+import { languageRepository } from '../../config/typeorm/TypeOrmConf';
 import express, { Router, Response, Request } from 'express';
 import { serialize } from "class-transformer";
 
@@ -10,7 +10,7 @@ router.put("/", (req, res) => createOrUpdateLanguage(req, res));
 router.delete("/:iso2Code", (req,res) => deleteLanguage(req, res));
 
 function findAllLanguages(res: Response): void {
-    languageRepository.findAll()
+    languageRepository.find()
         .then(languages => {
             let body: string = serialize(languages);
             res.status(200).setHeader('Content-Type', "application/json");
@@ -20,10 +20,10 @@ function findAllLanguages(res: Response): void {
 }
 
 function findLanguageByIsoCode(req: Request, res: Response): void {
-    languageRepository.findById(req.params.iso2Code)
-        .then(optional => {
-            if (optional.isPresent()) {
-                let body: string = serialize(optional.get());
+    languageRepository.findOne(req.params.iso2Code)
+        .then(language => {
+            if (language) {
+                let body: string = serialize(language);
                 res.status(200).setHeader('Content-Type', "application/json");
                 res.send(body)
             } else {

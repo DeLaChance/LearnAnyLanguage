@@ -1,14 +1,17 @@
-import { Entity } from "./Entity";
 
-export class Language implements Entity<string> {
+import { Entity, Column, PrimaryColumn } from "typeorm";
+import { AbstractEntity } from './AbstractEntity'
 
+@Entity()
+export class Language implements AbstractEntity<string> {
+
+    @PrimaryColumn()
     iso2Code: string;
-    name: string;
 
-    constructor(iso2Code: string, name: string) {
-        this.iso2Code = iso2Code;
-        this.name = name;
-    }
+    @Column({
+        length: 256
+    })
+    name: string;
 
     getID(): string {
         return this.iso2Code;
