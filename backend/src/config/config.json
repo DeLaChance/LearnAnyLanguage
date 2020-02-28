@@ -10,7 +10,7 @@
         },
         "practicelists": {
             "type": "file",
-            "location": "./repos/languages.repo"            
+            "location": "./repos/l.repo"            
         }
     }
 }

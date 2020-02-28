@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="step1-create-language-table" author="lvalstar">
+        <createTable tableName="language">
+            <column name="iso2Code" type="char(2)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(256)"/>
+        </createTable>    
+    </changeSet>
+
+    <changeSet id="step2-create-word-table" author="lvalstar">
+        <createTable tableName="word">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="language" type="char(2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="language" baseTableName="word"
+            constraintName="fk_word_to_language"
+            referencedColumnNames="iso2Code"
+            referencedTableName="language"
+        />
+    </changeSet>
+
+    <changeSet id="step3-create-translation-table" author="lvalstar">
+
+        <createTable tableName="translation">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="source" baseTableName="translation"
+            constraintName="fk_source_translation_to_word"
+            referencedColumnNames="id"
+            referencedTableName="word"
+        />
+
+        <addForeignKeyConstraint baseColumnNames="target" baseTableName="translation"
+            constraintName="fk_target_translation_to_word"
+            referencedColumnNames="id"
+            referencedTableName="word"
+        />
+
+    </changeSet>
+
+    <changeSet id="step4-create-practice-list-table" author="lvalstar">
+    
+        <createTable tableName="practiceList">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="sourceLanguage" type="char(2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="targetLanguage" type="char(2)">
+                <constraints nullable="false"/>
+            </column>            
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="sourceLanguage" baseTableName="practiceList"
+            constraintName="fk_sourceLanguage_to_language"
+            referencedColumnNames="iso2Code"
+            referencedTableName="language"
+        />
+
+        <addForeignKeyConstraint baseColumnNames="targetLanguage" baseTableName="practiceList"
+            constraintName="fk_targetLanguage_to_language"
+            referencedColumnNames="iso2Code"
+            referencedTableName="language"
+        />        
+
+    </changeSet>
+
+    <changeSet id="step5-create-practice-list-member-table" author="lvalstar">
+        <createTable tableName="practiceListMember">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="word" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="practiceList" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="word" baseTableName="practiceListMember"
+            constraintName="fk_practiceListMember_word"
+            referencedColumnNames="id"
+            referencedTableName="word"
+        />
+
+        <addForeignKeyConstraint baseColumnNames="practiceList" baseTableName="practiceListMember"
+            constraintName="fk_practiceListMember_practiceList"
+            referencedColumnNames="id"
+            referencedTableName="practiceList"
+        />       
+    </changeSet>
+
+
+</databaseChangeLog>

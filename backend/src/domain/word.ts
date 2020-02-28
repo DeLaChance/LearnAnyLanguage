@@ -1,6 +1,19 @@
 import { Language } from './Language';
+import { Entity } from './Entity';
 
-export interface Word {
-    language: Language;
-    value: string;
+export class Word implements Entity<number> {
+
+    private id: number;
+    private language: Language;
+    private value: string;
+
+    constructor(id: number, language: Language, value: string) {
+        this.id = id;
+        this.language = language;
+        this.value = value;
+    }
+
+    getID(): number {
+        return this.id;
+    }
 }

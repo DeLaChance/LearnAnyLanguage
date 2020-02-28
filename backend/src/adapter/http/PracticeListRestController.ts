@@ -1,9 +1,9 @@
-import practiceListRepository from '../../repository/file-based/PracticeListRepository';
 import express, { Router, Response, Request, response } from 'express';
 import { serialize } from "class-transformer";
 
 let router: Router = express.Router();
 
+/*
 router.get("/", (req, res) => findAll(res));
 router.get("/:id", (req, res) => findById(req, res));
 router.delete("/:id", (req,res) => deleteById(req, res));
@@ -42,3 +42,4 @@ function deleteById(req: Request, res: Response) {
         })
         .catch(reason => res.status(500).send(reason));    
 }
+*/

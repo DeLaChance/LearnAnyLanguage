@@ -1,23 +1,8 @@
-import express from 'express';
+import runLiquibase from "./config/database/LiquibaseConf";
+import startHttpServer from './config/http/HttpConf'
 
-import languagesRouter from './adapter/http/LanguageRestController';
-import config from './config/config.json';
-import bodyParser from "body-parser";
+runLiquibase
+.then(() => startHttpServer)
+.then(() => console.log("Started up the LearnAnyLanguage backend."))
+.catch((error) => console.error("Error while starting up the LearnAnyLanguage backend: " + error));
 
-const httpServer = express();
-const port = config.httpServer.port;
-
-httpServer.listen(port, error => {
-  if (error) {
-    return console.error(error);
-  }
-
-  return console.log(`The HTTP server is listening on ${port}`);
-});
-
-httpServer.use(bodyParser.json());
-httpServer.get('/', (req, res) => {
-  res.send('The sedulous hyena ate the antelope!');
-});
-
-httpServer.use('/api/languages', languagesRouter);
