@@ -15,6 +15,12 @@
 `curl -H 'Content-Type: application/json' -H 'Accept: application/json' -X PUT --data '{ "iso2Code": "FR" , "name" : "French" }' localhost:8180/api/languages`
 
 ## Links
-Credits to:
+Used these sources when building this:
  - [Setup typescript project](https://khalilstemmler.com/blogs/typescript/node-starter-project/).
  - [Setup express webserver](https://www.digitalocean.com/community/tutorials/setting-up-a-node-project-with-typescript)
+ - [Setup NEST RestController](https://github.com/nestjsx/crud/wiki/Controllers#getting-started)
+
+## TODO:
+- Add REST endpoint for all domain entities
+- Add practice list importer
+- Make it possible to test a practice list

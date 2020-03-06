@@ -1,6 +1,8 @@
 
-import { Entity, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, OneToMany } from "typeorm";
 import { AbstractEntity } from './AbstractEntity'
+import { Word } from "./Word";
+import { Exclude, Expose } from "class-transformer";
 
 @Entity()
 export class Language implements AbstractEntity<string> {

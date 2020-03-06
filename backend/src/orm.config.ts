@@ -15,7 +15,7 @@ export const withCache: TypeOrmModuleOptions = {
     schema: "learnalanguage",
     synchronize: true,
     logging: false,
-
+    autoLoadEntities: true,
     entities: [
         Language,
         Word,
