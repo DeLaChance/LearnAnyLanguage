@@ -1,7 +1,8 @@
-import { Word } from './Word';
+import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractEntity } from './AbstractEntity';
-import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn, JoinColumn, OneToOne, ManyToOne } from 'typeorm';
 import { PracticeList } from './PracticeList';
+import { Word } from './Word';
+import { Transform, Exclude } from 'class-transformer';
 
 @Entity()
 export class Translation implements AbstractEntity<number> {
@@ -9,15 +10,18 @@ export class Translation implements AbstractEntity<number> {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(type => Word, { nullable: false })
+    @ManyToOne(type => Word, { nullable: false, eager: true })
     @JoinColumn()
+    @Transform(word => word.value)
     source: Word;
 
-    @OneToOne(type => Word, { nullable: false })
+    @ManyToOne(type => Word, { nullable: false, eager: true })
     @JoinColumn()
+    @Transform(word => word.value)
     target: Word;
     
     @ManyToOne(type => PracticeList, practiceList => practiceList.translations)
+    @Exclude()
     practiceList: PracticeList;
 
     getID(): number {

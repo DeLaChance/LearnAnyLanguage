@@ -10,7 +10,7 @@ export class Word implements AbstractEntity<number> {
     @Exclude()    
     id: number;
 
-    @ManyToOne(type => Language, { nullable: false, eager: true })
+    @ManyToOne(type => Language, { nullable: false })
     @JoinColumn({ name: 'languageIso2Code', referencedColumnName: 'iso2Code' })
     @Transform(language => language.iso2Code)
     language: Language;

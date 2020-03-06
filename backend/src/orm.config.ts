@@ -4,6 +4,7 @@ import { Language } from "./domain/Language";
 import { Word } from "./domain/Word";
 import { Translation } from "./domain/Translation";
 import { PracticeList } from "./domain/PracticeList";
+import { AddLanguagesMigration1583510854834 } from './config/migrations/AddLanguagesMigration';
 
 export const withCache: TypeOrmModuleOptions = {
     type: "postgres",
@@ -22,4 +23,8 @@ export const withCache: TypeOrmModuleOptions = {
         Translation,
         PracticeList 
     ],
+    migrations: [
+        AddLanguagesMigration1583510854834
+    ],
+    migrationsRun: true
 };

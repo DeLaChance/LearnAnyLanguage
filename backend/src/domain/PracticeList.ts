@@ -1,26 +1,33 @@
-import { Translation } from "./Translation";
-import { Language } from "./Language";
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { AbstractEntity } from "./AbstractEntity";
-import { PrimaryGeneratedColumn, Entity, OneToMany, JoinColumn, OneToOne } from "typeorm";
+import { Language } from "./Language";
+import { Translation } from "./Translation";
+import { Transform, Expose } from "class-transformer";
 
 @Entity()
-export class PracticeList implements AbstractEntity<number> {
+export class PracticeList implements AbstractEntity<string> {
 
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn("uuid")
+    id: string;
 
-    @OneToMany(type => Translation, translation => translation.practiceList)
+    @Column()
+    @Index({ unique: true })
+    name: string;
+
+    @OneToMany(type => Translation, translation => translation.practiceList, { eager: true })
     translations: Translation[];
     
     @JoinColumn()
-    @OneToOne(type => Language, { nullable: false })
+    @ManyToOne(type => Language, { nullable: false })
+    @Transform(language => language.iso2Code)
     source: Language;
 
     @JoinColumn()
-    @OneToOne(type => Language, { nullable: false })
+    @ManyToOne(type => Language, { nullable: false })
+    @Transform(language => language.iso2Code)
     target: Language;
 
-    getID(): number {
+    getID(): string {
         return this.id;
     }
 

@@ -11,7 +11,7 @@ async function bootstrap() {
     const port = config.httpServer.port;
     await app.listen(port, host);
 
-    Logger.log("Started up the LearnAnyLanguage backend at ${host}:${port}");
+    Logger.log(`Started up the LearnAnyLanguage backend at ${host}:${port}`);
 }
 
 bootstrap();
