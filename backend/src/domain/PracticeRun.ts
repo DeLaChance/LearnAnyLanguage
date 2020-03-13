@@ -4,6 +4,7 @@ import { PracticeList } from "./PracticeList";
 import { Translation } from "./Translation";
 import { TranslationAttempt } from "./TranslationAttempt";
 import { Exclude } from "class-transformer";
+import { Optional } from "typescript-optional";
 
 /**
  * A {@link PracticeRun} is an assessment of all {@link Translation}'s (word pairs) in a {@link PracticeList}.
@@ -29,6 +30,20 @@ export class PracticeRun implements AbstractEntity<string> {
 
     getID(): string {
         return this.id;
+    }
+
+    fetchFirstUnanswered(): Optional<TranslationAttempt> {
+        let unansweredTranslations: TranslationAttempt[] = this.translationAttempts
+            .filter(translationAttempt => !translationAttempt.answerWasGiven);
+            
+        let optional: Optional<TranslationAttempt>;
+        if (unansweredTranslations.length == 0) {
+            optional = Optional.empty();
+        } else {
+            optional = Optional.of(unansweredTranslations[0]);
+        }
+
+        return optional;
     }
 
     isFinished(): boolean {

@@ -23,7 +23,7 @@ export class TranslationAttempt implements AbstractEntity<string> {
     answerWasGiven: boolean;
 
     @ManyToOne(type => PracticeRun, practiceRun => practiceRun.translationAttempts, { eager: false })
-    @Exclude()
+    @Transform(practiceRun => practiceRun.id)
     practiceRun: PracticeRun;
 
     @UpdateDateColumn()
@@ -37,4 +37,11 @@ export class TranslationAttempt implements AbstractEntity<string> {
         // TODO: simple matching, can do more refined stuff
         return this.answer === this.translation.target.value;
     }
+
+    giveAnswer(answer: string): TranslationAttempt {
+        this.answer = answer;
+        this.answerWasGiven = true;
+
+        return this;
+    }    
 }
