@@ -7,10 +7,13 @@ import { PracticeListFileImporter } from "../../service/practicelist/PracticeLis
 import { Translation } from "../../domain/Translation";
 import { Word } from "../../domain/Word";
 import { Language } from "../../domain/Language";
+import { PracticeRunService } from "../../service/PracticeRunService";
+import { PracticeRun } from "../../domain/PracticeRun";
+import { TranslationAttempt } from "../../domain/TranslationAttempt";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PracticeList, Language, Word, Translation])],
-  providers: [PracticeListService, PracticeListFileImporter],
+  imports: [TypeOrmModule.forFeature([PracticeList, Language, Word, Translation, PracticeRun, TranslationAttempt])],
+  providers: [PracticeListService, PracticeListFileImporter, PracticeRunService],
   exports: [PracticeListService],
   controllers: [PracticeListController]
 })

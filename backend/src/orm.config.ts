@@ -5,6 +5,8 @@ import { Word } from "./domain/Word";
 import { Translation } from "./domain/Translation";
 import { PracticeList } from "./domain/PracticeList";
 import { AddLanguagesMigration1583510854834 } from './config/migrations/AddLanguagesMigration';
+import { TranslationAttempt } from './domain/TranslationAttempt';
+import { PracticeRun } from './domain/PracticeRun';
 
 export const withCache: TypeOrmModuleOptions = {
     type: "postgres",
@@ -21,7 +23,9 @@ export const withCache: TypeOrmModuleOptions = {
         Language,
         Word,
         Translation,
-        PracticeList 
+        PracticeList,
+        PracticeRun,
+        TranslationAttempt
     ],
     migrations: [
         AddLanguagesMigration1583510854834

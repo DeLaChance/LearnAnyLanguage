@@ -6,6 +6,7 @@ import { withCache } from '../../orm.config';
 import { WordModule } from './WordModule';
 import { PracticeListModule } from './PracticeListModule';
 import { MulterModule } from '@nestjs/platform-express';
+import { PracticeRunModule } from './PracticeRunModule';
 
 @Module({
     imports: [
@@ -13,6 +14,7 @@ import { MulterModule } from '@nestjs/platform-express';
         LanguageModule,
         WordModule,
         PracticeListModule,
+        PracticeRunModule,
         MulterModule.register({
             dest: './tmp/' 
         })

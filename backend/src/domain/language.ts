@@ -1,9 +1,11 @@
 
-import { Entity, Column, PrimaryColumn, OneToMany } from "typeorm";
-import { AbstractEntity } from './AbstractEntity'
-import { Word } from "./Word";
-import { Exclude, Expose } from "class-transformer";
+import { Column, Entity, PrimaryColumn } from "typeorm";
+import { AbstractEntity } from './AbstractEntity';
 
+/**
+ *  The method of human communication, either spoken or written, consisting of the use of {@link Word}'s' in a 
+ *  structured and conventional way.
+ */
 @Entity()
 export class Language implements AbstractEntity<string> {
 

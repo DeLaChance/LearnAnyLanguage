@@ -3,6 +3,9 @@ import { AbstractEntity } from './AbstractEntity';
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
 import { Exclude, Transform } from 'class-transformer';
 
+/**
+ * A word is a sequence of characters bound to a particular {@link Language}.
+ */
 @Entity()
 export class Word implements AbstractEntity<number> {
 

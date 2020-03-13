@@ -1,9 +1,13 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { AbstractEntity } from './AbstractEntity';
 import { PracticeList } from './PracticeList';
 import { Word } from './Word';
 import { Transform, Exclude } from 'class-transformer';
+import { TranslationAttempt } from './TranslationAttempt';
 
+/**
+ * A {@link Translation} maps one {@link Word} from one language into another {@link Word} from a different one.
+ */
 @Entity()
 export class Translation implements AbstractEntity<number> {
     
@@ -23,6 +27,10 @@ export class Translation implements AbstractEntity<number> {
     @ManyToOne(type => PracticeList, practiceList => practiceList.translations)
     @Exclude()
     practiceList: PracticeList;
+
+    @OneToMany(type => TranslationAttempt, translationAttempt => translationAttempt.translation, { eager: false }) 
+    @Exclude()
+    translationAttempts: TranslationAttempt[];
 
     getID(): number {
         return this.id;

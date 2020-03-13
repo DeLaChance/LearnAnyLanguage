@@ -1,9 +1,12 @@
+import { Transform } from "class-transformer";
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { AbstractEntity } from "./AbstractEntity";
 import { Language } from "./Language";
 import { Translation } from "./Translation";
-import { Transform, Expose } from "class-transformer";
 
+/**
+ * A practice list is a collection of {@link Translation}'s' from one {@link Language} into another.
+ */
 @Entity()
 export class PracticeList implements AbstractEntity<string> {
 
@@ -18,12 +21,12 @@ export class PracticeList implements AbstractEntity<string> {
     translations: Translation[];
     
     @JoinColumn()
-    @ManyToOne(type => Language, { nullable: false })
+    @ManyToOne(type => Language, { nullable: false, eager: true })
     @Transform(language => language.iso2Code)
     source: Language;
 
     @JoinColumn()
-    @ManyToOne(type => Language, { nullable: false })
+    @ManyToOne(type => Language, { nullable: false, eager: true })
     @Transform(language => language.iso2Code)
     target: Language;
 
