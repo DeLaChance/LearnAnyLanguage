@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { PracticeRunService } from "../../service/PracticeRunService";
 import { PracticeRun } from "../../domain/PracticeRun";
+import { CommandBus } from "@nestjs/cqrs";
+import { CreatePracticeRunCommand } from "../../domain/commands/CreatePracticeRunCommand";
 
 @Crud({
   model: {
@@ -27,6 +29,9 @@ export class PracticeListController implements CrudController<PracticeList> {
 
     @Inject()
     importer: PracticeListFileImporter;
+
+    @Inject()
+    commandBus: CommandBus;
 
     @Get()
     findAll() {
@@ -57,6 +62,9 @@ export class PracticeListController implements CrudController<PracticeList> {
     
     @Post(":listId/start")
     startPracticeRun(@Param("listId") listId: string): Promise<PracticeRun> {
-        return this.practiceRunService.start(listId);
+        let command: CreatePracticeRunCommand = new CreatePracticeRunCommand();
+        command.listId = listId;
+
+        return this.commandBus.execute(command);
     }
 }

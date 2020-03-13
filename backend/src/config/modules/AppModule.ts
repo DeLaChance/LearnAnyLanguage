@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { LanguageModule } from './LanguageModule'
-
-import { withCache } from '../../orm.config';
-import { WordModule } from './WordModule';
-import { PracticeListModule } from './PracticeListModule';
+import { CqrsModule } from '@nestjs/cqrs';
 import { MulterModule } from '@nestjs/platform-express';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { withCache } from '../../orm.config';
+import { LanguageModule } from './LanguageModule';
+import { PracticeListModule } from './PracticeListModule';
 import { PracticeRunModule } from './PracticeRunModule';
+import { WordModule } from './WordModule';
+
 
 @Module({
     imports: [
+        CqrsModule,
         TypeOrmModule.forRoot(withCache),
         LanguageModule,
         WordModule,
@@ -18,6 +20,6 @@ import { PracticeRunModule } from './PracticeRunModule';
         MulterModule.register({
             dest: './tmp/' 
         })
-    ]    
+    ]   
 })
 export class AppModule {}

@@ -1,9 +1,9 @@
-import { ClassSerializerInterceptor, Controller, Get, UseInterceptors, Post, UploadedFile, Inject, Param, Body } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Inject, Param, Post, UseInterceptors } from "@nestjs/common";
 import { Crud, CrudController } from "@nestjsx/crud";
 import { PracticeRun } from "../../domain/PracticeRun";
+import { TranslationAttempt } from "../../domain/TranslationAttempt";
 import { PracticeRunService } from "../../service/PracticeRunService";
 import { AnswerDto } from "./dto/AnswerDto";
-import { TranslationAttempt } from "../../domain/TranslationAttempt";
 
 @Crud({
     model: {

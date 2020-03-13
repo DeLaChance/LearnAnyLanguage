@@ -10,10 +10,24 @@ import { Language } from "../../domain/Language";
 import { PracticeRunService } from "../../service/PracticeRunService";
 import { PracticeRun } from "../../domain/PracticeRun";
 import { TranslationAttempt } from "../../domain/TranslationAttempt";
+import { CqrsModule } from "@nestjs/cqrs";
+import { CreatePracticeRunCommandHandler } from "../../service/command/CreatePracticeRunCommandHandler";
+
+export const commandHandlers = [ CreatePracticeRunCommandHandler ];
+export const eventHandlers = [];
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PracticeList, Language, Word, Translation, PracticeRun, TranslationAttempt])],
-  providers: [PracticeListService, PracticeListFileImporter, PracticeRunService],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([PracticeList, Language, Word, Translation, PracticeRun, TranslationAttempt])    
+  ],
+  providers: [
+    PracticeListService, 
+    PracticeListFileImporter, 
+    PracticeRunService, 
+    ...commandHandlers, 
+    ...eventHandlers
+  ],
   exports: [PracticeListService],
   controllers: [PracticeListController]
 })
