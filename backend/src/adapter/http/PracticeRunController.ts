@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, Inject, Param, Put, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Inject, Param, Put, UseInterceptors, Header } from "@nestjs/common";
 import { Crud, CrudController } from "@nestjsx/crud";
 import { PracticeRun } from "../../domain/PracticeRun";
 import { TranslationAttempt } from "../../domain/TranslationAttempt";
@@ -28,6 +28,7 @@ import { AnswerDto } from "./dto/AnswerDto";
     }
 
     @Put(":runId/giveAnswer")
+    @Header('Content-Type', 'application/json')
     giveAnswer(@Param("runId") runId: string, @Body() answerDto: AnswerDto): Promise<TranslationAttempt> {
         return this.service.giveAnswer(runId, answerDto.answer);
     }    

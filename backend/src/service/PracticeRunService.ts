@@ -113,19 +113,20 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
 
         let promise: Promise<TranslationAttempt>;
         if (optional.isPresent()) {
-            let translationAttempt: TranslationAttempt = optional.get();
+            let translationAttempt: TranslationAttempt = await this.translationAttemptRepo.findOneOrFail(optional.get().id);
             translationAttempt = translationAttempt.giveAnswer(answer);
             translationAttempt = await this.translationAttemptRepo.save(translationAttempt);
             
             this.cancelExistingTimeOut(runId);
 
-            Logger.log(`Answer (id=${translationAttempt.id}, actual='${answer}',expected='${translationAttempt.answer}',` +
+            Logger.log(`Answer (id=${translationAttempt.id}, actual='${answer}',expected='${translationAttempt.translation.target.value}',` +
                 `correct='${translationAttempt.isCorrectAnswer()}') was given to practice run '${practiceRun.id}'`);
             
+            practiceRun = await this.repo.findOneOrFail(runId);
             if (practiceRun.allAnswersGiven()) {
-                this.publishPracticeRunAnswerGivenEvent(practiceRun.id);
-            } else {
                 await this.finish(practiceRun.id);
+            } else {
+                this.publishPracticeRunAnswerGivenEvent(practiceRun.id);                
             }
 
             promise = Promise.resolve(translationAttempt);
@@ -146,16 +147,18 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         let promise: Promise<TranslationAttempt>;
         let optional: Optional<TranslationAttempt> = practiceRun.fetchFirstUnanswered();
         if (optional.isPresent()) {
-            let translationAttempt: TranslationAttempt = optional.get();
+            let translationAttempt: TranslationAttempt = await this.translationAttemptRepo.findOneOrFail(optional.get().id);
             translationAttempt = translationAttempt.timeOut();
             translationAttempt = await this.translationAttemptRepo.save(translationAttempt);
 
             Logger.log(`Answer timeout on ${practiceRun.id} for ${translationAttempt.id}.`);
+            this.cancelExistingTimeOut(runId);
 
+            practiceRun = await this.repo.findOneOrFail(runId);
             if (practiceRun.allAnswersGiven()) {
-                this.publishPracticeRunAnswerTimedOutEvent(practiceRun.id);
-            } else {
                 await this.finish(practiceRun.id);
+            } else {
+                this.publishPracticeRunAnswerTimedOutEvent(practiceRun.id);
             }
 
             promise = Promise.resolve(translationAttempt);
@@ -202,18 +205,18 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         translationAttempt.practiceRun = practiceRun;
         translationAttempt.translation = translation;
         translationAttempt.answerWasGiven = false;
+        translationAttempt.timedOut = false;
 
         return this.translationAttemptRepo.save(translationAttempt);
     }
 
     private cancelExistingTimeOut(runId: string) {
         this.schedulerRegistry.deleteTimeout(runId);
-        Logger.log(`Deleting answer timeout for run='${runId}'.`);
     }
 
     private scheduleNextAnswerTimeOut(runId: string) {
         const callback = () => this.timeOutAnswer(runId);
-        const timeOutInMillis = 5000;
+        const timeOutInMillis = 50000;
         const timeout = setTimeout(callback, timeOutInMillis);
         this.schedulerRegistry.addTimeout(runId, timeout);
         Logger.log(`Scheduling answer timeout for run='${runId}' in ${timeOutInMillis}ms.`);

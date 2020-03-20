@@ -13,7 +13,7 @@ export class TranslationAttempt implements AbstractEntity<string> {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @ManyToOne(type => Translation, translation => translation.translationAttempts, { eager: false })
+    @ManyToOne(type => Translation, translation => translation.translationAttempts, { eager: true })
     translation: Translation;
 
     @Column({ nullable: true })
@@ -21,6 +21,9 @@ export class TranslationAttempt implements AbstractEntity<string> {
 
     @Column()
     answerWasGiven: boolean;
+
+    @Column()
+    timedOut: boolean;
 
     @ManyToOne(type => PracticeRun, practiceRun => practiceRun.translationAttempts, { eager: false })
     @Transform(practiceRun => practiceRun.id)
@@ -41,12 +44,15 @@ export class TranslationAttempt implements AbstractEntity<string> {
     giveAnswer(answer: string): TranslationAttempt {
         this.answer = answer;
         this.answerWasGiven = true;
+        this.timedOut = false;
 
         return this;
     }    
 
     timeOut(): TranslationAttempt {
-        this.answerWasGiven = true;
+        this.answer = "";
+        this.answerWasGiven = false;
+        this.timedOut = true;
         
         return this;
     }

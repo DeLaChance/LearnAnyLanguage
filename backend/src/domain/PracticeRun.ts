@@ -35,7 +35,7 @@ export class PracticeRun implements AbstractEntity<string> {
 
     fetchFirstUnanswered(): Optional<TranslationAttempt> {
         let unansweredTranslations: TranslationAttempt[] = this.translationAttempts
-            .filter(translationAttempt => !translationAttempt.answerWasGiven);
+            .filter(translationAttempt => !translationAttempt.answerWasGiven && !translationAttempt.timedOut);
             
         let optional: Optional<TranslationAttempt>;
         if (unansweredTranslations.length == 0) {

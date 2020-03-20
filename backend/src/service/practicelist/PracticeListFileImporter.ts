@@ -5,12 +5,13 @@ import { Language } from "../../domain/Language";
 import { PracticeList } from "../../domain/PracticeList";
 import { Translation } from "../../domain/Translation";
 import { Word } from "../../domain/Word";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class PracticeListFileImporter {
 
     static readonly ARROW_SEPERATOR: string = " -> ";
+    static readonly COMMENT_LINE_STARTER: string = "#";
 
     @InjectRepository(Language)
     languageRepo: Repository<Language>;
@@ -62,7 +63,8 @@ export class PracticeListFileImporter {
 
         let translations: Translation[] = [];
         lines.forEach(async (line, index) => {
-            if (index <= 2) {
+            if (index <= 2 || line.indexOf(PracticeListFileImporter.ARROW_SEPERATOR) == -1 
+                || line.startsWith(PracticeListFileImporter.COMMENT_LINE_STARTER)) {
                 return;
             }
 
@@ -81,20 +83,22 @@ export class PracticeListFileImporter {
         
         let promise: Promise<Translation>;
         if (translatableWordPair.length != 2) {
+            Logger.log(`Invalid line detected: ${line}`);
             promise = Promise.reject("Line needs to follow pattern: A -> B");
+        } else {
+            let sourceWord: Word = await this.createWord(translatableWordPair[0].trim(), sourceLanguage);
+            let targetWord: Word = await this.createWord(translatableWordPair[1].trim(), targetLanguage);
+
+            let translation: Translation = new Translation();
+            translation.source = sourceWord;
+            translation.target = targetWord;
+            translation.practiceList = practiceList;
+            
+            translation = await this.translationRepo.save(translation);
+            promise = Promise.resolve(translation);
         }
 
-        let sourceWord: Word = await this.createWord(translatableWordPair[0].trim(), sourceLanguage);
-        let targetWord: Word = await this.createWord(translatableWordPair[1].trim(), targetLanguage);
-
-        let translation: Translation = new Translation();
-        translation.source = sourceWord;
-        translation.target = targetWord;
-        translation.practiceList = practiceList;
-        
-        translation = await this.translationRepo.save(translation);
-
-        return Promise.resolve(translation);
+        return promise;
     }
 
     private async createWord(wordString: string, wordLanguage: Language): Promise<Word> {

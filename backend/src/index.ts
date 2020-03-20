@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 
 import config from './config/config.json';
 import { AppModule } from './config/modules/AppModule';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -12,6 +12,8 @@ async function bootstrap() {
     await app.listen(port, host);
 
     Logger.log(`Started up the LearnAnyLanguage backend at ${host}:${port}`);
+    
+    app.useGlobalPipes(new ValidationPipe());
 }
 
 bootstrap();
