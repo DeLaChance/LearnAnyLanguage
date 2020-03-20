@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, Inject, Param, Post, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Inject, Param, Put, UseInterceptors } from "@nestjs/common";
 import { Crud, CrudController } from "@nestjsx/crud";
 import { PracticeRun } from "../../domain/PracticeRun";
 import { TranslationAttempt } from "../../domain/TranslationAttempt";
@@ -27,8 +27,24 @@ import { AnswerDto } from "./dto/AnswerDto";
         return this.service.findOne(runId);
     }
 
-    @Post(":runId/giveAnswer")
+    @Put(":runId/giveAnswer")
     giveAnswer(@Param("runId") runId: string, @Body() answerDto: AnswerDto): Promise<TranslationAttempt> {
         return this.service.giveAnswer(runId, answerDto.answer);
     }    
+
+    @Put(":runId/pause")
+    pause(@Param("runId") runId: string): Promise<PracticeRun> {
+      return this.service.pause(runId);
+    }    
+
+    @Put(":runId/abort")
+    abort(@Param("runId") runId: string): Promise<PracticeRun> {
+      return this.service.abort(runId);
+    }        
+
+    @Put(":runId/restart")
+    restart(@Param("runId") runId: string): Promise<PracticeRun> {
+      return this.service.restart(runId);
+    }        
+
   }

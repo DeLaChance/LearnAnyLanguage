@@ -9,7 +9,7 @@ import { Exclude, Transform } from "class-transformer";
  */
 @Entity()
 export class TranslationAttempt implements AbstractEntity<string> {
-
+    
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
@@ -44,4 +44,10 @@ export class TranslationAttempt implements AbstractEntity<string> {
 
         return this;
     }    
+
+    timeOut(): TranslationAttempt {
+        this.answerWasGiven = true;
+        
+        return this;
+    }
 }

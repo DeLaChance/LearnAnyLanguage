@@ -11,7 +11,10 @@ import { PracticeRunService } from "../../service/PracticeRunService";
 import { PracticeRun } from "../../domain/PracticeRun";
 import { TranslationAttempt } from "../../domain/TranslationAttempt";
 import { CqrsModule } from "@nestjs/cqrs";
-import { CreatePracticeRunCommandHandler } from "../../service/command/CreatePracticeRunCommandHandler";
+import { CreatePracticeRunCommandHandler } from "../../service/commands/CreatePracticeRunCommandHandler";
+import { PracticeRunAnswerGivenEventHandler } from "../../service/events/PracticeRunAnswerGivenEventHandler";
+import { PracticeRunAnswerTimedOutEventHandler } from "../../service/events/PracticeRunAnswerTimedOutEventHandler";
+import { PracticeRunCreatedEventHandler } from "../../service/events/PracticeRunCreatedEventHandler";
 
 export const commandHandlers = [ CreatePracticeRunCommandHandler ];
 export const eventHandlers = [];
@@ -19,7 +22,14 @@ export const eventHandlers = [];
 @Module({
   imports: [
     CqrsModule,
-    TypeOrmModule.forFeature([PracticeList, Language, Word, Translation, PracticeRun, TranslationAttempt])    
+    TypeOrmModule.forFeature([
+      PracticeList, 
+      Language, 
+      Word, 
+      Translation, 
+      PracticeRun, 
+      TranslationAttempt
+    ])    
   ],
   providers: [
     PracticeListService, 
@@ -28,7 +38,12 @@ export const eventHandlers = [];
     ...commandHandlers, 
     ...eventHandlers
   ],
-  exports: [PracticeListService],
-  controllers: [PracticeListController]
+  exports: [
+    PracticeListService
+  ],
+  controllers: [
+    PracticeListController
+  ]
 })
-export class PracticeListModule {}
+export class PracticeListModule {
+}

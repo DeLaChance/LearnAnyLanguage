@@ -1,10 +1,7 @@
-import { PrimaryGeneratedColumn, Entity, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, Column, OneToMany } from "typeorm";
-import { AbstractEntity } from "./AbstractEntity";
-import { PracticeList } from "./PracticeList";
-import { Translation } from "./Translation";
-import { TranslationAttempt } from "./TranslationAttempt";
-import { Exclude } from "class-transformer";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Optional } from "typescript-optional";
+import { AbstractEntity } from "./AbstractEntity";
+import { TranslationAttempt } from "./TranslationAttempt";
 
 /**
  * A {@link PracticeRun} is an assessment of all {@link Translation}'s (word pairs) in a {@link PracticeList}.
@@ -32,6 +29,10 @@ export class PracticeRun implements AbstractEntity<string> {
         return this.id;
     }
 
+    allAnswersGiven(): boolean {
+        return this.fetchFirstUnanswered().isEmpty();
+    }
+
     fetchFirstUnanswered(): Optional<TranslationAttempt> {
         let unansweredTranslations: TranslationAttempt[] = this.translationAttempts
             .filter(translationAttempt => !translationAttempt.answerWasGiven);
@@ -44,6 +45,30 @@ export class PracticeRun implements AbstractEntity<string> {
         }
 
         return optional;
+    }
+
+    finish(): PracticeRun {
+        this.status = Status.FINISHED;
+
+        return this;
+    }
+
+    abort(): PracticeRun {
+        this.status = Status.ABORTED;
+
+        return this;
+    }
+
+    pause(): PracticeRun {
+        this.status = Status.PAUSED;
+
+        return this;
+    }
+
+    restart() {
+        this.status = Status.RUNNING;
+
+        return this;
     }
 
     isFinished(): boolean {

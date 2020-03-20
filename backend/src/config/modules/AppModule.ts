@@ -7,10 +7,11 @@ import { LanguageModule } from './LanguageModule';
 import { PracticeListModule } from './PracticeListModule';
 import { PracticeRunModule } from './PracticeRunModule';
 import { WordModule } from './WordModule';
-
+import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         CqrsModule,
         TypeOrmModule.forRoot(withCache),
         LanguageModule,
