@@ -2,6 +2,7 @@ import { PracticeRunAnswerTimedOutEvent } from "../../domain/events/PracticeRunA
 import { IEventHandler, EventsHandler } from "@nestjs/cqrs";
 import { PracticeRunService } from "../PracticeRunService";
 import { Inject } from "@nestjs/common";
+import { WebSocketAdapter } from "../../adapter/websocket/WebSocketAdapter";
 
 @EventsHandler(PracticeRunAnswerTimedOutEvent)
 export class PracticeRunAnswerTimedOutEventHandler implements IEventHandler<PracticeRunAnswerTimedOutEvent> {
@@ -9,8 +10,12 @@ export class PracticeRunAnswerTimedOutEventHandler implements IEventHandler<Prac
     @Inject()
     practiceRunService: PracticeRunService;
 
+    @Inject()
+    webSocketAdapter: WebSocketAdapter;
+
     handle(event: PracticeRunAnswerTimedOutEvent) {
         this.practiceRunService.scheduleNextAnswerTimeout(event.runId);
+        this.webSocketAdapter.sendEvent(event);
     }
     
 }

@@ -21,6 +21,5 @@ Used these sources when building this:
  - [Setup NEST RestController](https://github.com/nestjsx/crud/wiki/Controllers#getting-started)
 
 ## TODO:
-- Add REST endpoint for all domain entities
-- Add practice list importer
-- Make it possible to test a practice list
+- Websocket integration
+- React frontend

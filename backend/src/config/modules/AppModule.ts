@@ -8,6 +8,7 @@ import { PracticeListModule } from './PracticeListModule';
 import { PracticeRunModule } from './PracticeRunModule';
 import { WordModule } from './WordModule';
 import { ScheduleModule } from '@nestjs/schedule'
+import { WebSocketAdapter } from '../../adapter/websocket/WebSocketAdapter';
 
 @Module({
     imports: [
@@ -21,6 +22,9 @@ import { ScheduleModule } from '@nestjs/schedule'
         MulterModule.register({
             dest: './tmp/' 
         })
+    ],
+    providers: [
+        WebSocketAdapter
     ]   
 })
 export class AppModule {}

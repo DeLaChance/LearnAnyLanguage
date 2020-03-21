@@ -1,17 +1,16 @@
-import { IEventHandler, EventsHandler } from "@nestjs/cqrs";
-import { PracticeRunCreatedEvent } from "../../domain/events/PracticeRunCreatedEvent";
 import { Inject } from "@nestjs/common";
-import { PracticeRunService } from "../PracticeRunService";
+import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
+import { WebSocketAdapter } from "../../adapter/websocket/WebSocketAdapter";
 import { PracticeRunStoppedEvent } from "../../domain/events/PracticeRunStoppedEvent";
 
 @EventsHandler(PracticeRunStoppedEvent)
 export class PracticeRunStoppedEventHandler implements IEventHandler<PracticeRunStoppedEvent> {
     
     @Inject()
-    practiceRunService: PracticeRunService;
+    webSocketAdapter: WebSocketAdapter;
 
     handle(event: PracticeRunStoppedEvent) {
-        // TODO: forward to websocket
+        this.webSocketAdapter.sendEvent(event);
     }
 
 }
