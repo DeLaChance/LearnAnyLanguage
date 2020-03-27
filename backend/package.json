@@ -1,5 +1,5 @@
 {
-  "name": "LearnAnyLanguage",
+  "name": "learnanylanguage_backend",
   "version": "1.0.0",
   "description": "Word list testing application",
   "main": "index.js",
