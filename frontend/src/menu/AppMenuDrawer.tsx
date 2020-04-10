@@ -1,10 +1,11 @@
-import React from "react";
-import { makeStyles, SwipeableDrawer, List, ListItem, ListItemText, ListItemIcon } from "@material-ui/core";
-import clsx from 'clsx';
+import { List, makeStyles, SwipeableDrawer } from "@material-ui/core";
 import LanguageIcon from '@material-ui/icons/Language';
+import ListIcon from '@material-ui/icons/List';
 import SchoolIcon from '@material-ui/icons/School';
-import ListIcon from '@material-ui/icons/List'
-
+import clsx from 'clsx';
+import React from "react";
+import { MenuItemConfiguration } from "../domain/MenuItemConfiguration";
+import MenuItemWithRouter from "./MenuItem";
 
 type Props = {
     drawerOpen: boolean;
@@ -13,12 +14,6 @@ type Props = {
 
 type State = {
 };
-
-interface MenuItemConfiguration {
-
-    name: string;
-    icon: React.ReactElement;
-}
 
 export class AppMenuDrawer extends React.Component<Props, State> {
 
@@ -52,18 +47,21 @@ export class AppMenuDrawer extends React.Component<Props, State> {
         let menuItems: MenuItemConfiguration[] = [
             {
                 "name": "Lists",
+                "route": "/lists",
                 "icon": (
                     <ListIcon />
                 )
             },
             {
                 "name": "Practice Runs",
+                "route": "/runs",
                 "icon": (
                     <SchoolIcon />
                 )
             },
             {
                 "name": "Languages",
+                "route": "/languages",
                 "icon": (
                     <LanguageIcon />
                 )
@@ -75,25 +73,21 @@ export class AppMenuDrawer extends React.Component<Props, State> {
         return (
             <div className={clsx(styles.list)}
                 role="presentation"
-                onClick={(e) => this.props.toggleDrawer(e)}
                 onKeyDown={(e) => this.props.toggleDrawer(e)}
             >
                 <List>
-                    {menuItems.map(configuration => this.generateMenuItem(configuration)) }
+                    {menuItems.map(configuration => this.generateMenuItemWithRouter(configuration))}                                        
                 </List>
             </div>
         );
     }
 
-    private generateMenuItem(menuItemConfiguration: MenuItemConfiguration): React.ReactElement {
-        return (
-            <ListItem button key={menuItemConfiguration.name}>
-                <ListItemIcon>
-                    {menuItemConfiguration.icon}
-                </ListItemIcon>
-                <ListItemText primary={menuItemConfiguration.name} />                    
-            </ListItem>
+    generateMenuItemWithRouter(configuration: MenuItemConfiguration): any {
+        let menuItem: any = (
+            <MenuItemWithRouter configuration={configuration} onClick={(e) => this.props.toggleDrawer(e)}></MenuItemWithRouter>
         );
+        return menuItem;
     }
+
 }
 
