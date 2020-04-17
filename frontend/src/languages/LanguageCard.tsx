@@ -26,8 +26,8 @@ export default class LanguageCard extends React.Component<Props, State> {
                         title={this.props.language.name}
                         image={this.props.language.imageUrl}
                         style={{
-                            height: '30px',
-                            width: '30px'
+                            height: '48px',
+                            width: '64px'
                         }}
                     />
                     <CardContent>
