@@ -1,0 +1,3 @@
+{
+    "proxyUrl": "http://localhost:3100/api/fetchUrl?requestedUrl="
+}

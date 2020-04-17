@@ -17,10 +17,6 @@ type State = {
 
 export default class LanguageCard extends React.Component<Props, State> {
 
-    constructor(props: Props) {
-        super(props);
-    }
-
     render() {
         return (
             <Container maxWidth="xs">
@@ -45,7 +41,7 @@ export default class LanguageCard extends React.Component<Props, State> {
                     <CardActions>
                         <Router>
                             <div>
-                                <Button color="primary" onClick={e => this.redirectToUrl(e, this.props.language.wikipediaLink)}>
+                                <Button color="primary" onClick={e => this.redirectToUrl(e, this.props.language.learnMoreWikipediaLink)}>
                                     Learn More
                                 </Button>
                             </div>
