@@ -2,12 +2,12 @@ export class Language {
  
     iso2Code: string; 
     name: string;
-    description: string;    
+    description: string[];    
     wikipediaDescriptionLink: string;
     learnMoreWikipediaLink: string;
     imageUrl: string;
 
-    constructor(iso2Code: string, description: string) {
+    constructor(iso2Code: string, description: string[]) {
         this.iso2Code = iso2Code;
         this.description = description;
 

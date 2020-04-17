@@ -41,8 +41,8 @@ export default class LanguagePage extends React.Component<Props, State> {
 
     async componentDidMount(): Promise<void> {
         let languages: Language[] = await Promise.all(this.props.iso2Codes.map(async iso2Code => {
-            let language: Language = new Language(iso2Code, "");
-            let description: string = await this.fetchDescription(language.wikipediaDescriptionLink);
+            let language: Language = new Language(iso2Code, []);
+            let description: string[] = await this.fetchDescription(language.wikipediaDescriptionLink);
             language.description = description;
             return language;
         }));
@@ -54,18 +54,21 @@ export default class LanguagePage extends React.Component<Props, State> {
         return Promise.resolve();
     }    
 
-    private async fetchDescription(wikipediaDescriptionLink: string): Promise<string> {
+    private async fetchDescription(wikipediaDescriptionLink: string): Promise<string[]> {
 
         let encodedWikiLink: string = encodeURIComponent(wikipediaDescriptionLink);
         let url: string = `${config.proxyUrl}${encodedWikiLink}`;
         let res = await fetch(url);
         let wikipediaExtractJson = await res.json();
-        let matches: any[] = jsonpath.query(wikipediaExtractJson, "$..extract");
-        if (matches.length == 0) {
+        let jsonPatternMatches: any[] = jsonpath.query(wikipediaExtractJson, "$..extract");
+        if (jsonPatternMatches.length == 0) {
             return Promise.reject("No extract found");
         } else {
-            let description: string = matches[0] as string;
-            description = description.replace(/<\/?[^>]+(>|$)/g, "");
+            let descriptionBlob: string = jsonPatternMatches[0] as string;
+            let description: string[] = descriptionBlob.split(/<p>.*?<\/p>/gm)
+                .filter(value => value !== "" && value.length > 0)
+                .map(value => value.replace(/<\/?[^>]+(>|$)/g, "").replace(/\\n/g, ""))
+                .filter(value => value !== "" && value.length > 0);
             return Promise.resolve(description);
         }        
     } 

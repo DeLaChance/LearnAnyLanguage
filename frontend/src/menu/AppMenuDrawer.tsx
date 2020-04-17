@@ -1,4 +1,4 @@
-import { List, makeStyles, SwipeableDrawer } from "@material-ui/core";
+import { List, makeStyles, SwipeableDrawer, ListItem } from "@material-ui/core";
 import LanguageIcon from '@material-ui/icons/Language';
 import ListIcon from '@material-ui/icons/List';
 import SchoolIcon from '@material-ui/icons/School';
@@ -84,7 +84,9 @@ export class AppMenuDrawer extends React.Component<Props, State> {
 
     generateMenuItemWithRouter(configuration: MenuItemConfiguration): any {
         let menuItem: any = (
-            <MenuItemWithRouter configuration={configuration} onClick={(e) => this.props.toggleDrawer(e)}></MenuItemWithRouter>
+            <ListItem key={configuration.name}>
+                <MenuItemWithRouter configuration={configuration} onClick={(e) => this.props.toggleDrawer(e)}></MenuItemWithRouter>                        
+            </ListItem>            
         );
         return menuItem;
     }
