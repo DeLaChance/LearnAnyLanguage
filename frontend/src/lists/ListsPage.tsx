@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactElement } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
+import { useHistory } from "react-router-dom";
 import { PracticeList } from '../domain/PracticeList';
 import config from '../config/config.json';
 
@@ -24,10 +24,9 @@ export default function ListsPage() {
         if (httpReponse.status == 200) {
             let responseJson = await httpReponse.json();
 
-            let practiceLists: PracticeList[] = responseJson.map((languageJson: any) => 
-                new PracticeList(languageJson.id, languageJson.name, languageJson.source, languageJson.target)
-            );
-            
+            let practiceLists: PracticeList[] = responseJson.map((practiceListJson: any) => 
+                PracticeList.from(practiceListJson)
+            );            
             setPracticeLists(practiceLists);
             console.log(`Set practiceLists to ${practiceLists}`);
 
@@ -50,20 +49,30 @@ export default function ListsPage() {
             list: {
                 margin: 'auto'
             },
-
+            listItem: {
+            }
         }),
     );
   
     const classes = useStyles();
+    
+    let history = useHistory();
+    const handleClick = (event: any, route: string) => {
+        history.push(route);        
+    }
+
+
+    const createPracticeListItem = (practiceList: PracticeList): React.ReactElement => {
+        let route: string = `/lists/${practiceList.id}`;
+        return (
+            <ListItem button key={practiceList.id} className={classes.listItem} onClick={(e) => handleClick(e, route)}>
+                <ListItemText primary={practiceList.name} />
+            </ListItem>        
+        );
+    };   
 
     const practiceListComponents = practiceLists.map(practiceList => {
-        return (
-            <>
-                <ListItem button key={practiceList.id}>
-                    <ListItemText primary={practiceList.name} />
-                </ListItem>
-            </>
-        );
+        return createPracticeListItem(practiceList)
     });
 
     return (
@@ -74,3 +83,4 @@ export default function ListsPage() {
         </div>
     );
 }
+
