@@ -17,7 +17,7 @@ export default function LanguagePage(props: Props) {
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
         prepareLanguages();
-    }); 
+    }, []); 
 
     const prepareLanguages = async function(): Promise<void> {
         let languages: Language[] = await Promise.all(props.iso2Codes.map(async iso2Code => {
@@ -28,6 +28,7 @@ export default function LanguagePage(props: Props) {
         }));
         
         setLanguages(languages);
+        console.log(`Set languages to ${languages}`);
 
         return Promise.resolve();
     }
@@ -36,19 +37,24 @@ export default function LanguagePage(props: Props) {
 
         let encodedWikiLink: string = encodeURIComponent(wikipediaDescriptionLink);
         let url: string = `${config.proxyUrl}${encodedWikiLink}`;
-        let res = await fetch(url);
-        let wikipediaExtractJson = await res.json();
-        let jsonPatternMatches: any[] = jsonpath.query(wikipediaExtractJson, "$..extract");
-        if (jsonPatternMatches.length == 0) {
-            return Promise.reject("No extract found");
+        let httpResponse = await fetch(url);
+
+        if (httpResponse.status == 200) {
+            let wikipediaExtractJson = await httpResponse.json();
+            let jsonPatternMatches: any[] = jsonpath.query(wikipediaExtractJson, "$..extract");
+            if (jsonPatternMatches.length == 0) {
+                return Promise.reject("No extract found");
+            } else {
+                let descriptionBlob: string = jsonPatternMatches[0] as string;
+                let description: string[] = descriptionBlob.split(/<p>.*?<\/p>/gm)
+                    .filter(value => value !== "" && value.length > 0)
+                    .map(value => value.replace(/<\/?[^>]+(>|$)/g, "").replace(/[^\S ]+/g, ""))
+                    .filter(value => value !== "" && value.length > 0);
+                return Promise.resolve(description);
+            }        
         } else {
-            let descriptionBlob: string = jsonPatternMatches[0] as string;
-            let description: string[] = descriptionBlob.split(/<p>.*?<\/p>/gm)
-                .filter(value => value !== "" && value.length > 0)
-                .map(value => value.replace(/<\/?[^>]+(>|$)/g, "").replace(/[^\S ]+/g, ""))
-                .filter(value => value !== "" && value.length > 0);
-            return Promise.resolve(description);
-        }        
+            return Promise.reject(`Nothing found at link ${wikipediaDescriptionLink}`);
+        }
     }
 
     const useStyles = makeStyles((theme: Theme) =>

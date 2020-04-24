@@ -7,13 +7,14 @@ import {
     Route,
     Link
   } from "react-router-dom";
-import { Theme } from './config/Theme';
+import { theme } from './config/Theme';
 import { MuiThemeProvider, CssBaseline } from '@material-ui/core';
+import ListsPage from './lists/ListsPage';
 
 export default class App extends React.Component {
     render() {
         return (
-            <MuiThemeProvider theme={Theme}>
+            <MuiThemeProvider theme={theme}>
                 <CssBaseline />
                 <Router>
                     <AppMenuBar />
@@ -22,6 +23,9 @@ export default class App extends React.Component {
                         <Route path="/languages">
                             <LanguagePage iso2Codes={['nl', 'en', 'fr', 'de', 'zh', 'hi', 'ar']} />
                         </Route>
+                        <Route path="/lists">
+                            <ListsPage />
+                        </Route>                        
                         <Route path="/">                        
                         </Route>                    
                     </Switch>

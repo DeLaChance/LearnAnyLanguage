@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme: AugmentedTheme) =>
     }),
 );
 
-export const Theme = createMuiTheme({
+export const theme = createMuiTheme({
     palette: {
         primary: {
             main: '#3c3c3c',
