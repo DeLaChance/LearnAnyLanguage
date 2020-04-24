@@ -2,15 +2,15 @@ export class Translation {
 
     id: number;
     source: string;
-    word: string;
+    target: string;
 
-    constructor(id: number, source: string, word: string) {
+    constructor(id: number, source: string, target: string) {
         this.id = id;
         this.source = source;
-        this.word = word;
+        this.target = target;
     }
 
     static from(translationJson: any): Translation {
-        return new Translation(translationJson.id, translationJson.source, translationJson.word);
+        return new Translation(translationJson.id, translationJson.source, translationJson.target);
     }
 }

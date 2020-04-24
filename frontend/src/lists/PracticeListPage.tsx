@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { PracticeList } from '../domain/PracticeList';
 import config from '../config/config.json'
-import { Translation } from '../domain/Translation';
+import PracticeListTable from './PracticeListTable';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 export default function PracticeListPage() {
 
@@ -32,9 +33,18 @@ export default function PracticeListPage() {
         }
     };
 
-    return (
-        <>
-        </>
-    );
+    const renderLoadingComponent = () => {
+        return (
+            <CircularProgress />
+        );
+    };
+
+    if (practiceList == null) {
+        return renderLoadingComponent();
+    } else {
+        return (
+            <PracticeListTable practiceList={practiceList} />
+        );
+    }    
 }
 
