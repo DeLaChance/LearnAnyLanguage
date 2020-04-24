@@ -4,63 +4,47 @@ import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppMenuDrawer } from "./AppMenuDrawer";
 
-type Props = {
-};
 
-type State = {
-    drawerOpen: boolean
-};
+export default function AppMenuBar() {
 
-export default class AppMenuBar extends React.Component<Props, State> {
+    const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-    constructor(props: Props) {
-        super(props);
+    const useStyles = makeStyles(theme => ({
+        root: {
+            flexGrow: 1,
+        },
+        menuButton: {
+            marginRight: theme.spacing(2),
+        },
+        title: {
+            flexGrow: 1,
+        },
+    })); 
 
-        this.state = {
-            drawerOpen: false
-        };
-    }
+    const toggleDrawer = (event: any) => {
+        if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+            return;
+        }
 
-    useStyles(): any {
-        return makeStyles(theme => ({
-            root: {
-              flexGrow: 1,
-            },
-            menuButton: {
-              marginRight: theme.spacing(2),
-            },
-            title: {
-              flexGrow: 1,
-            },
-        }));    
-    } 
+        setDrawerOpen(!drawerOpen);
+    };
+    
+    const classes = useStyles();
 
-    render() {
-        const classes = this.useStyles();
-
-        return (
+    return (
+        <div className={classes.root}>
             <AppBar position="static">
                 <Toolbar>
                     <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-                        <MenuIcon onClick={(e) => this.toggleDrawer(e)}/>
+                        <MenuIcon onClick={(e) => toggleDrawer(e)}/>
                     </IconButton>
                     <Typography variant="h6" className={classes.title}>
                     LearnAnyLanguage
                     </Typography>
                 </Toolbar>
-                <AppMenuDrawer drawerOpen={this.state.drawerOpen} toggleDrawer={(e) => this.toggleDrawer(e)} />
+                <AppMenuDrawer drawerOpen={drawerOpen} toggleDrawer={(e) => toggleDrawer(e)} />
             </AppBar>
-        );
-    }
-
-    private toggleDrawer(event: any) {
-        if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-            return;
-        }
-
-        this.setState({ 
-            drawerOpen: !this.state.drawerOpen 
-        });
-    };
+        </div>
+    );
 
 }
