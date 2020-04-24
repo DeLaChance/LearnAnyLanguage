@@ -28,15 +28,15 @@ export default function LanguageCard(props: Props) {
                 maxWidth: 345,
             },
             media: {
-            height: 0,
+                height: 0,
                 paddingTop: '56.25%', // 16:9
             },
             expand: {
-            transform: 'rotate(0deg)',
-            marginLeft: 'auto',
-            transition: theme.transitions.create('transform', {
-                duration: theme.transitions.duration.shortest,
-            }),
+                transform: 'rotate(0deg)',
+                marginLeft: 'auto',
+                transition: theme.transitions.create('transform', {
+                    duration: theme.transitions.duration.shortest,
+                }),
             },
             expandOpen: {
                 transform: 'rotate(180deg)',
@@ -62,16 +62,23 @@ export default function LanguageCard(props: Props) {
 
     let beginningOfDescription: string = "";
     let remainderOfDescription: string = "";
-    if (props.language.description.length >= 0) {
-        beginningOfDescription = props.language.description[0];
+    if (props.language.description.length > 0) {
+
+        if (props.language.description[0].length >= 500) {
+            beginningOfDescription = props.language.description[0].substring(0, 500) + "...";
+            remainderOfDescription = props.language.description[0].substring(500);
+        } else {
+            beginningOfDescription = props.language.description[0]; 
+        }
+
         remainderOfDescription = props.language.description
             .filter((value, index) => index > 0)
-            .reduce((a, b) => a + b, "");
+            .reduce((a, b) => a + b, remainderOfDescription);
     } 
 
     return (
         <Container maxWidth="xs">
-            <Card>
+            <Card className={classes.root} variant="outlined">
                 <CardContent>
                     <CardMedia
                         component="img" 
