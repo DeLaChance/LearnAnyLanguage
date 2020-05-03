@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, Controller, Get, UseInterceptors, Post, UploadedFile, Inject, Param, Body } from "@nestjs/common";
+import { ClassSerializerInterceptor, Controller, Get, UseInterceptors, Post, UploadedFile, Inject, Param, Body, Delete, Put } from "@nestjs/common";
 import { Crud, CrudController } from "@nestjsx/crud";
 import { PracticeList } from "../../domain/PracticeList";
 import { PracticeListService } from "../../service/practicelist/PracticeListService";
@@ -12,6 +12,7 @@ import { PracticeRun } from "../../domain/PracticeRun";
 import { CommandBus } from "@nestjs/cqrs";
 import { CreatePracticeRunCommand } from "../../domain/commands/CreatePracticeRunCommand";
 import { TranslationDto } from "./dto/TranslationDto";
+import { HttpResponseInterceptor} from "./HttpResponseInterceptor";
 
 @Crud({
   model: {
@@ -19,7 +20,7 @@ import { TranslationDto } from "./dto/TranslationDto";
   }
 })
 @Controller("/api/lists/")
-@UseInterceptors(ClassSerializerInterceptor)
+@UseInterceptors(ClassSerializerInterceptor, HttpResponseInterceptor)
 export class PracticeListController implements CrudController<PracticeList> {
 
     @Inject()
@@ -72,4 +73,17 @@ export class PracticeListController implements CrudController<PracticeList> {
     addTranslation(@Param("listId") listId: string, @Body() translationDto: TranslationDto): Promise<PracticeList> {
         return this.service.addTranslation(listId, translationDto);
     }
+
+    @Delete(":listId/:translationId/delete")
+    deleteTranslation(@Param("listId") listId: string, @Param("translationId") translationId: number) {
+        return this.service.deleteTranslation(listId, translationId);
+    }
+    
+    @Put(":listId/:translationId/edit")
+    editTranslation(@Param("listId") listId: string, @Param("translationId") translationId: number, 
+        @Body() translationDto: TranslationDto) {
+
+        return this.service.editTranslation(listId, translationId, translationDto);
+    }
+
 }

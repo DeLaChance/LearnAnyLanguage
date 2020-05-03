@@ -4,6 +4,7 @@ import { PracticeRun } from "../../domain/PracticeRun";
 import { TranslationAttempt } from "../../domain/TranslationAttempt";
 import { PracticeRunService } from "../../service/PracticeRunService";
 import { AnswerDto } from "./dto/AnswerDto";
+import { HttpResponseInterceptor } from "./HttpResponseInterceptor";
 
 @Crud({
     model: {
@@ -11,7 +12,7 @@ import { AnswerDto } from "./dto/AnswerDto";
     }
   })
   @Controller("/api/runs/")
-  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(ClassSerializerInterceptor, HttpResponseInterceptor)
   export class PracticeRunController implements CrudController<PracticeRun> {
     
     @Inject()

@@ -40,8 +40,29 @@ export class PracticeListService extends TypeOrmCrudService<PracticeList> {
 
         practiceList.translations.push(translation);
         practiceList = await this.repo.save(practiceList);
-        
+
         return Promise.resolve(practiceList);
     }
 
+    async deleteTranslation(listId: string, translationId: number): Promise<PracticeList> {
+        await this.translationRepo.delete(translationId);
+
+        let practiceList: PracticeList = await this.repo.findOneOrFail(listId);
+        return Promise.resolve(practiceList);
+    }
+
+    async editTranslation(listId: string, translationId: number, translationDto: TranslationDto) {
+        let translation: Translation = await this.translationRepo.findOneOrFail(translationId);
+
+        let sourceWord: Word = translation.source;
+        sourceWord.value = translationDto.source;
+        this.wordRepo.save(sourceWord);
+
+        let targetWord: Word = translation.target;
+        targetWord.value = translationDto.target;
+        this.wordRepo.save(targetWord);
+
+        let practiceList: PracticeList = await this.repo.findOneOrFail(listId);
+        return Promise.resolve(practiceList);
+    }
 }
