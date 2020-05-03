@@ -1,3 +1,11 @@
+## TODO:
+- Practice list editing 
+- Upload file button 
+- Test execution
+- Practice run overview
+- Make it in a docker container + start scripts
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

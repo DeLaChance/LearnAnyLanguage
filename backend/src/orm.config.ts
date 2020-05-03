@@ -10,12 +10,12 @@ import { PracticeRun } from './domain/PracticeRun';
 
 export const withCache: TypeOrmModuleOptions = {
     type: "postgres",
-    host: "192.168.178.61",
-    port: 32300,
-    username: "octoprint",
-    password: "octoprint",
-    database: "learnalanguage",
-    schema: "learnalanguage",
+    host: "localhost",
+    port: 5432,
+    username: "postgres",
+    password: "postgres",
+    database: "learnanylanguage",
+    schema: "learnanylanguage",
     synchronize: true,
     logging: false,
     autoLoadEntities: true,

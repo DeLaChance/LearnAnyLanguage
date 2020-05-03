@@ -25,4 +25,10 @@ export class Word implements AbstractEntity<number> {
         return this.id;
     }
 
+    static from(value: string, language: Language): Word {
+        let word: Word = new Word();
+        word.language = language;
+        word.value = value;
+        return word;
+    }
 }

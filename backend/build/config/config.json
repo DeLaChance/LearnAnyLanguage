@@ -3,14 +3,14 @@
         "port": 8180,
         "host": "0.0.0.0"
     },
+    "websocket": {
+        "port": 81,
+        "host": "0.0.0.0"
+    },
     "repos": {
         "language": {
             "type": "file",
             "location": "./repos/languages.repo"
-        },
-        "practicelists": {
-            "type": "file",
-            "location": "./repos/l.repo"
         }
     }
 }

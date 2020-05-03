@@ -41,6 +41,7 @@
     "@nestjs/websockets": "^7.0.3",
     "@nestjsx/crud": "^4.4.1",
     "@nestjsx/crud-typeorm": "^4.4.1",
+    "@types/cron": "^1.7.2",
     "@types/fs-extra": "^8.1.0",
     "@types/line-reader": "0.0.28",
     "@types/multer": "^1.4.2",

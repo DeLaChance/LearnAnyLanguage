@@ -3,6 +3,8 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGenerat
 import { AbstractEntity } from "./AbstractEntity";
 import { Language } from "./Language";
 import { Translation } from "./Translation";
+import { TranslationDto } from "../adapter/http/dto/TranslationDto";
+import { Word } from "./Word";
 
 /**
  * A practice list is a collection of {@link Translation}'s' from one {@link Language} into another.
