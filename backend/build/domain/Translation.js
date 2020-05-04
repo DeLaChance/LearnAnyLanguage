@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var Translation_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const PracticeList_1 = require("./PracticeList");
@@ -17,9 +18,17 @@ const TranslationAttempt_1 = require("./TranslationAttempt");
 /**
  * A {@link Translation} maps one {@link Word} from one language into another {@link Word} from a different one.
  */
-let Translation = class Translation {
+let Translation = Translation_1 = class Translation {
     getID() {
         return this.id;
+    }
+    static from(sourceWord, targetWord, practiceList) {
+        let translation = new Translation_1();
+        translation.source = sourceWord;
+        translation.target = targetWord;
+        translation.practiceList = practiceList;
+        translation.translationAttempts = [];
+        return translation;
     }
 };
 __decorate([
@@ -48,7 +57,7 @@ __decorate([
     class_transformer_1.Exclude(),
     __metadata("design:type", Array)
 ], Translation.prototype, "translationAttempts", void 0);
-Translation = __decorate([
+Translation = Translation_1 = __decorate([
     typeorm_1.Entity()
 ], Translation);
 exports.Translation = Translation;

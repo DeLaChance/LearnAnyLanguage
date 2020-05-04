@@ -17,10 +17,6 @@ type State = {
 
 export class AppMenuDrawer extends React.Component<Props, State> {
 
-    constructor(props: Props) {
-        super(props);
-    }
-
     render() {
         return (
             <SwipeableDrawer anchor="left" open={this.props.drawerOpen} 

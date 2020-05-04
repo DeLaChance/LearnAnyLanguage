@@ -39,10 +39,10 @@ export default function LanguagePage(props: Props) {
         let url: string = `${config.proxyUrl}${encodedWikiLink}`;
         let httpResponse = await fetch(url);
 
-        if (httpResponse.status == 200) {
+        if (httpResponse.status === 200) {
             let wikipediaExtractJson = await httpResponse.json();
             let jsonPatternMatches: any[] = jsonpath.query(wikipediaExtractJson, "$..extract");
-            if (jsonPatternMatches.length == 0) {
+            if (jsonPatternMatches.length === 0) {
                 return Promise.reject("No extract found");
             } else {
                 let descriptionBlob: string = jsonPatternMatches[0] as string;

@@ -21,7 +21,7 @@ export default function ListsPage() {
     const preparePracticeLists = async function(): Promise<void> {
 
         let httpReponse = await fetch(config.backendBaseUrl + "lists");
-        if (httpReponse.status == 200) {
+        if (httpReponse.status === 200) {
             let responseJson = await httpReponse.json();
 
             let practiceLists: PracticeList[] = responseJson.map((practiceListJson: any) => 

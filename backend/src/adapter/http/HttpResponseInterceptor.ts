@@ -20,7 +20,6 @@ export class HttpResponseInterceptor implements NestInterceptor {
   }
 
   private handleError(error: any): Observable<any> {
-    console.log(`${error}`);
 
     let exception: any;
     if (error.name === 'EntityNotFound') {
@@ -36,6 +35,8 @@ export class HttpResponseInterceptor implements NestInterceptor {
         exception = new InternalServerErrorException(error.detail);
       }
     }
+
+    console.log(`Mapping error ${error} to HttpResponse ${exception}`);
 
     return throwError(exception);
   }

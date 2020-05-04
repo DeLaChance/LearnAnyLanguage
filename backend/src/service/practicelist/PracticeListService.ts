@@ -56,11 +56,11 @@ export class PracticeListService extends TypeOrmCrudService<PracticeList> {
 
         let sourceWord: Word = translation.source;
         sourceWord.value = translationDto.source;
-        this.wordRepo.save(sourceWord);
+        await this.wordRepo.save(sourceWord);
 
         let targetWord: Word = translation.target;
         targetWord.value = translationDto.target;
-        this.wordRepo.save(targetWord);
+        await this.wordRepo.save(targetWord);
 
         let practiceList: PracticeList = await this.repo.findOneOrFail(listId);
         return Promise.resolve(practiceList);
