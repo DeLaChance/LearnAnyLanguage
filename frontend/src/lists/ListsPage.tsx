@@ -8,7 +8,9 @@ import { useHistory } from "react-router-dom";
 import { PracticeList } from '../domain/PracticeList';
 import config from '../config/config.json';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
-import { IconButton, ListItemSecondaryAction } from '@material-ui/core';
+import SchoolIcon from '@material-ui/icons/School';
+import EditIcon from '@material-ui/icons/Edit';
+import { IconButton, ListItemSecondaryAction, Tooltip } from '@material-ui/core';
 
 export default function ListsPage() {
 
@@ -59,13 +61,25 @@ export default function ListsPage() {
     }
 
     const createPracticeListItem = (practiceList: PracticeList): React.ReactElement => {
-        let route: string = `/lists/${practiceList.id}`;
+        let editListRoute: string = `/lists/${practiceList.id}`;
         return (
-            <ListItem button key={practiceList.id} className={classes.listItem} onClick={(e) => handleClick(e, route)}>
+            <ListItem button key={practiceList.id} className={classes.listItem}>
                 <ListItemText primary={practiceList.name} />
                 <ListItemSecondaryAction>
-                    <IconButton edge="end" aria-label="comments">
-                        <PlayCircleFilledIcon />
+                    <IconButton edge="end" aria-label="Edit list">
+                        <Tooltip title="Edit" onClick={(e) => handleClick(e, editListRoute)}>
+                            <EditIcon/>
+                        </Tooltip>
+                    </IconButton>                    
+                    <IconButton edge="end" aria-label="Start test">
+                        <Tooltip title="Start test">
+                            <PlayCircleFilledIcon/>
+                        </Tooltip>
+                    </IconButton>
+                    <IconButton edge="end" aria-label="Results">
+                        <Tooltip title="Results">
+                            <SchoolIcon/>
+                        </Tooltip>
                     </IconButton>
                 </ListItemSecondaryAction>
             </ListItem>        
