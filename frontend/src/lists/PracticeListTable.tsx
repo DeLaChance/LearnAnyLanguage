@@ -27,16 +27,7 @@ export default function PracticeListTable(props: Props) {
     const [practiceList, setPracticeList] = useState<PracticeList>();
 
     const [state, setState] = React.useState<TableState>({
-        columns: [
-            { 
-                title: 'id', 
-                type: 'numeric', 
-                editable: 'never', 
-                field: 'id'
-            },
-            { title: practiceList ? `${practiceList.source}` : '', field: 'source' },
-            { title: practiceList ? `${practiceList.target}` : '', field: 'target' }
-        ],
+        columns: [],
         data: [],
     });
 
@@ -56,10 +47,21 @@ export default function PracticeListTable(props: Props) {
     const updatePracticeListAndTableData = (practiceList: PracticeList) => {
         console.log("Rerendering practice list");
         let data: Row[] = mapPracticeList(practiceList);
-            setState({
-                columns: state.columns,
-                data: data
-            });
+        let columns: Column<Row>[] = [
+            { 
+                title: 'id', 
+                type: 'numeric', 
+                editable: 'never', 
+                field: 'id'
+            },
+            { title: practiceList ? `${practiceList.source}` : '', field: 'source' },
+            { title: practiceList ? `${practiceList.target}` : '', field: 'target' }
+        ];
+
+        setState({
+            columns: columns,
+            data: data
+        });
 
         setPracticeList(practiceList);
     };

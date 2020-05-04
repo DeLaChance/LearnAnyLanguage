@@ -7,6 +7,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { useHistory } from "react-router-dom";
 import { PracticeList } from '../domain/PracticeList';
 import config from '../config/config.json';
+import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
+import { IconButton, ListItemSecondaryAction } from '@material-ui/core';
 
 export default function ListsPage() {
 
@@ -38,13 +40,8 @@ export default function ListsPage() {
 
     const useStyles = makeStyles((theme: Theme) =>
         createStyles({
-            root: {
-                flexWrap: 'wrap',
+            root: {                
                 backgroundColor: theme.palette.background.paper,
-                margin: 'auto',
-                width: 500,
-                height: 80,
-                display: 'flex',
             },
             list: {
                 margin: 'auto'
@@ -61,12 +58,16 @@ export default function ListsPage() {
         history.push(route);        
     }
 
-
     const createPracticeListItem = (practiceList: PracticeList): React.ReactElement => {
         let route: string = `/lists/${practiceList.id}`;
         return (
             <ListItem button key={practiceList.id} className={classes.listItem} onClick={(e) => handleClick(e, route)}>
                 <ListItemText primary={practiceList.name} />
+                <ListItemSecondaryAction>
+                    <IconButton edge="end" aria-label="comments">
+                        <PlayCircleFilledIcon />
+                    </IconButton>
+                </ListItemSecondaryAction>
             </ListItem>        
         );
     };   
