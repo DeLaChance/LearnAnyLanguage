@@ -32,10 +32,7 @@ const useStyles = makeStyles((theme: AugmentedTheme) =>
             '&$checked': {
                 color: theme.status.danger,
             },
-        },
-        checked: {
-
-        }
+        }       
     }),
 );
 

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import MaterialTable, { Column, QueryResult } from 'material-table';
+import MaterialTable, { Column, MTableBodyRow } from 'material-table';
 import { PracticeList } from '../domain/PracticeList';
 import config from '../config/config.json';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, createStyles, makeStyles, Theme } from '@material-ui/core';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import ArrowBackButton from '../components/ArrowBackButton';
 
 interface Row {
     id: number;
@@ -26,7 +28,12 @@ export default function PracticeListTable(props: Props) {
 
     const [state, setState] = React.useState<TableState>({
         columns: [
-            { title: 'id', type: 'numeric', editable: 'never', field: 'id' },
+            { 
+                title: 'id', 
+                type: 'numeric', 
+                editable: 'never', 
+                field: 'id'
+            },
             { title: practiceList ? `${practiceList.source}` : '', field: 'source' },
             { title: practiceList ? `${practiceList.target}` : '', field: 'target' }
         ],
@@ -162,7 +169,17 @@ export default function PracticeListTable(props: Props) {
                     pageSize: 20,
                     pageSizeOptions: [20,50,100],
                 }}
+                components={{
+                    Row: props => <MTableBodyRow {...props} ></MTableBodyRow>
+                }}
                 actions={[
+                    {
+                        icon: () => <ArrowBackButton goTo="/lists/"/>,
+                        tooltip: 'Back',
+                        isFreeAction: true,
+                        onClick: () => 
+                            fetchPracticeList().then(practiceList => updatePracticeListAndTableData(practiceList)),
+                    },                    
                     {
                         icon: 'refresh',
                         tooltip: 'Refresh Data',
@@ -170,7 +187,7 @@ export default function PracticeListTable(props: Props) {
                         onClick: () => 
                             fetchPracticeList().then(practiceList => updatePracticeListAndTableData(practiceList)),
                     }
-                ]}                
+                ]}      
             />
         );                    
     };
