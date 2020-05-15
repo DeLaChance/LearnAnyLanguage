@@ -10,34 +10,28 @@ import config from '../config/config.json';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 import SchoolIcon from '@material-ui/icons/School';
 import EditIcon from '@material-ui/icons/Edit';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { IconButton, ListItemSecondaryAction, Tooltip } from '@material-ui/core';
+import AddNewListDialog from './AddNewListDialog';
+import BackendHttpClient from '../clients/BackendHttpClient';
 
 export default function ListsPage() {
 
     // Hooks
     const [practiceLists, setPracticeLists] = useState<PracticeList[]>([]);
+    const [openAddNewListDialog, setOpenAddNewListDialog] = React.useState(false);
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
         preparePracticeLists();
     }, []); 
 
+    let backendClient: BackendHttpClient = new BackendHttpClient();
     const preparePracticeLists = async function(): Promise<void> {
 
-        let httpReponse = await fetch(config.backendBaseUrl + "lists");
-        if (httpReponse.status == 200) {
-            let responseJson = await httpReponse.json();
-
-            let practiceLists: PracticeList[] = responseJson.map((practiceListJson: any) => 
-                PracticeList.from(practiceListJson)
-            );            
-            setPracticeLists(practiceLists);
-            console.log(`Set practiceLists to ${practiceLists}`);
-
-            return Promise.resolve();
-        } else {
-            return Promise.reject("Backend is down.");
-        }
+        backendClient.fetchPracticeLists()
+            .then(practiceLists => setPracticeLists(practiceLists));
     };
 
     const useStyles = makeStyles((theme: Theme) =>
@@ -88,15 +82,43 @@ export default function ListsPage() {
         );
     };   
 
-    const practiceListComponents = practiceLists.map(practiceList => {
-        return createPracticeListItem(practiceList)
-    });
+    const practiceListComponents = practiceLists
+        .sort((a,b) => a.name.localeCompare(b.name))
+        .map(practiceList => {
+            return createPracticeListItem(practiceList)
+        });
+
+    const addNewListDialog = (
+        <AddNewListDialog 
+            open={openAddNewListDialog} 
+            handleClose={() => {
+                    setOpenAddNewListDialog(false);
+                    preparePracticeLists();
+                }
+            } 
+        />
+    );
 
     return (
         <div className={classes.root}>
             <List component="nav" className={classes.list}>
                 {practiceListComponents}   
             </List>
+
+            <IconButton edge="end" aria-label="Add new list">
+                <Tooltip title="Add new list" onClick={(e) => setOpenAddNewListDialog(true)}>
+                    <AddCircleIcon />
+                </Tooltip>
+            </IconButton>
+
+            <IconButton edge="end" aria-label="Upload a file">
+                <Tooltip title="Upload a file">
+                    <CloudUploadIcon />
+                </Tooltip>
+            </IconButton>
+
+            {addNewListDialog}
+
         </div>
     );
 }

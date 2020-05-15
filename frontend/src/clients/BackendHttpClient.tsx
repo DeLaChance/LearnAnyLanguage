@@ -4,6 +4,7 @@ import { Language } from "../domain/Language";
 
 export default class BackendHttpClient {
 
+   
     fetchLanguages(): Promise<Language[]> {
         const requestOptions = {
             method: 'GET'
@@ -24,6 +25,16 @@ export default class BackendHttpClient {
             .then(requestJson => Language.from(requestJson));
     }
 
+    fetchPracticeLists(): Promise<PracticeList[]> {
+        const requestOptions = {
+            method: 'GET'
+        };
+
+        let url: string = `${config.backendBaseUrl}lists/`;
+        return this.makeHttpRequest(url, requestOptions)
+            .then(responseJson => responseJson.map((practiceListJson: any) => PracticeList.from(practiceListJson)));
+    }
+
     fetchPracticeList(practiceListId: string): Promise<PracticeList> {
         const requestOptions = {
             method: 'GET'
@@ -32,6 +43,21 @@ export default class BackendHttpClient {
         let url: string = `${config.backendBaseUrl}lists/${practiceListId}`;
         return this.makePracticeListHttpRequest(url, requestOptions);
     };
+
+    createNewList(name: string, sourceLanguage: Language, targetLanguage: Language): Promise<PracticeList> {
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sourceLanguage: sourceLanguage.iso2Code, 
+                targetLanguage: targetLanguage.iso2Code,
+                name: name
+            })
+        };
+
+        let url: string = `${config.backendBaseUrl}lists/create`;        
+        return this.makePracticeListHttpRequest(url, requestOptions);
+    }
 
     addTranslationtoPracticeList(practiceListId: string, newSource: string, newTarget: string): Promise<PracticeList> {
         const requestOptions = {
