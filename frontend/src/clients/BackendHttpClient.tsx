@@ -4,7 +4,6 @@ import { Language } from "../domain/Language";
 
 export default class BackendHttpClient {
 
-   
     fetchLanguages(): Promise<Language[]> {
         const requestOptions = {
             method: 'GET'
@@ -57,6 +56,21 @@ export default class BackendHttpClient {
 
         let url: string = `${config.backendBaseUrl}lists/create`;        
         return this.makePracticeListHttpRequest(url, requestOptions);
+    }
+
+    uploadPracticeList(file: File): Promise<void> {
+        const request: XMLHttpRequest = new XMLHttpRequest();
+
+        const formData: FormData = new FormData();
+        formData.append("file", file, file.name);
+
+        let url: string = `${config.backendBaseUrl}lists/importFile`;
+        request.open("POST", url);
+
+        console.log(`Uploading file ${file.name} to url ${url}`);
+        request.send(formData);
+
+        return Promise.resolve();
     }
 
     addTranslationtoPracticeList(practiceListId: string, newSource: string, newTarget: string): Promise<PracticeList> {

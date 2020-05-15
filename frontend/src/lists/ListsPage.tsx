@@ -15,12 +15,14 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { IconButton, ListItemSecondaryAction, Tooltip } from '@material-ui/core';
 import AddNewListDialog from './AddNewListDialog';
 import BackendHttpClient from '../clients/BackendHttpClient';
+import UploadFileDialog from './UploadFileDialog';
 
 export default function ListsPage() {
 
     // Hooks
     const [practiceLists, setPracticeLists] = useState<PracticeList[]>([]);
     const [openAddNewListDialog, setOpenAddNewListDialog] = React.useState(false);
+    const [openUploadFileDialog, setOpenUploadFileDialog] = React.useState(false);    
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
@@ -88,16 +90,26 @@ export default function ListsPage() {
             return createPracticeListItem(practiceList)
         });
 
+    const refreshPage = () => {
+        setOpenAddNewListDialog(false);
+        setOpenUploadFileDialog(false);
+        preparePracticeLists();        
+    };
+
     const addNewListDialog = (
         <AddNewListDialog 
             open={openAddNewListDialog} 
-            handleClose={() => {
-                    setOpenAddNewListDialog(false);
-                    preparePracticeLists();
-                }
-            } 
+            handleClose={refreshPage}            
         />
     );
+
+    const uploadFileDialog = (
+        <UploadFileDialog
+            open={openUploadFileDialog}
+            handleClose={refreshPage}
+            handleSave={(file: File) => backendClient.uploadPracticeList(file).then(() => refreshPage())}
+        />
+    )
 
     return (
         <div className={classes.root}>
@@ -111,13 +123,14 @@ export default function ListsPage() {
                 </Tooltip>
             </IconButton>
 
-            <IconButton edge="end" aria-label="Upload a file">
+            <IconButton edge="end" aria-label="Upload a file" onClick={(e) => setOpenUploadFileDialog(true)}>
                 <Tooltip title="Upload a file">
                     <CloudUploadIcon />
                 </Tooltip>
             </IconButton>
 
             {addNewListDialog}
+            {uploadFileDialog}
 
         </div>
     );
