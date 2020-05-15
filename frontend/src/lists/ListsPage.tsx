@@ -56,28 +56,30 @@ export default function ListsPage() {
     const classes = useStyles();
     
     let history = useHistory();
-    const handleClick = (event: any, route: string) => {
+    const redirect = (route: string) => {
         history.push(route);        
     }
 
     const createPracticeListItem = (practiceList: PracticeList): React.ReactElement => {
         let editListRoute: string = `/lists/${practiceList.id}`;
+        let startRunRoute: string = `/runs/${practiceList.id}/start`;
+        let viewRunsRoute: string = `/runs/${practiceList.id}`;
         return (
             <ListItem button key={practiceList.id} className={classes.listItem}>
                 <ListItemText primary={practiceList.name} />
                 <ListItemSecondaryAction>
                     <IconButton edge="end" aria-label="Edit list">
-                        <Tooltip title="Edit" onClick={(e) => handleClick(e, editListRoute)}>
+                        <Tooltip title="Edit" onClick={(e) => redirect(editListRoute)}>
                             <EditIcon/>
                         </Tooltip>
                     </IconButton>                    
                     <IconButton edge="end" aria-label="Start test">
-                        <Tooltip title="Start test">
+                        <Tooltip title="Start test" onClick={(e) => redirect(startRunRoute)}>
                             <PlayCircleFilledIcon/>
                         </Tooltip>
                     </IconButton>
                     <IconButton edge="end" aria-label="Results">
-                        <Tooltip title="Results">
+                        <Tooltip title="Results" onClick={(e) => redirect(viewRunsRoute)}>
                             <SchoolIcon/>
                         </Tooltip>
                     </IconButton>

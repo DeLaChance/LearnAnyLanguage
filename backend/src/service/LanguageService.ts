@@ -11,4 +11,8 @@ export class LanguageService extends TypeOrmCrudService<Language> {
         super(repo);
     }
 
+    findByIso2Code(iso2Code: string): Promise<Language> {
+        return this.repo.findOneOrFail(iso2Code);
+    }
+  
 }

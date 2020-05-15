@@ -36,4 +36,12 @@ export class PracticeList implements AbstractEntity<string> {
         return this.id;
     }
 
+    static newEmptyList(sourceLanguage: Language, targetLanguage: Language, name: string): PracticeList {
+        let practiceList: PracticeList = new PracticeList();
+        practiceList.name = name;
+        practiceList.source = sourceLanguage;
+        practiceList.target = targetLanguage;
+        practiceList.translations = [];
+        return practiceList;
+    }
 }

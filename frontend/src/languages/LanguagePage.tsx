@@ -5,14 +5,13 @@ import React, { useEffect, useState } from 'react';
 import config from '../config/config.json';
 import { Language } from '../domain/Language';
 import LanguageCard from "./LanguageCard";
+import BackendHttpClient from '../clients/BackendHttpClient';
 
-type Props = {
-    iso2Codes: string[]
-};
-
-export default function LanguagePage(props: Props) {
+export default function LanguagePage() {
 
     const [languages, setLanguages] = useState<Language[]>([]);
+
+    let client: BackendHttpClient = new BackendHttpClient();
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
@@ -20,11 +19,12 @@ export default function LanguagePage(props: Props) {
     }, []); 
 
     const prepareLanguages = async function(): Promise<void> {
-        let languages: Language[] = await Promise.all(props.iso2Codes.map(async iso2Code => {
-            let language: Language = new Language(iso2Code, []);
-            let description: string[] = await fetchDescription(language.wikipediaDescriptionLink);
+        let languages: Language[] = await client.fetchLanguages();
+
+        languages = await Promise.all(languages.map(async language => {
+            let description: string[] = await fetchDescription(language);
             language.description = description;
-            return language;
+            return Promise.resolve(language);
         }));
         
         setLanguages(languages);
@@ -33,9 +33,9 @@ export default function LanguagePage(props: Props) {
         return Promise.resolve();
     }
 
-    const fetchDescription = async function(wikipediaDescriptionLink: string): Promise<string[]> {
+    const fetchDescription = async function(language: Language): Promise<string[]> {
 
-        let encodedWikiLink: string = encodeURIComponent(wikipediaDescriptionLink);
+        let encodedWikiLink: string = encodeURIComponent(language.wikipediaDescriptionLink);
         let url: string = `${config.proxyUrl}${encodedWikiLink}`;
         let httpResponse = await fetch(url);
 
@@ -43,7 +43,7 @@ export default function LanguagePage(props: Props) {
             let wikipediaExtractJson = await httpResponse.json();
             let jsonPatternMatches: any[] = jsonpath.query(wikipediaExtractJson, "$..extract");
             if (jsonPatternMatches.length === 0) {
-                return Promise.reject("No extract found");
+                return Promise.reject(`No extract found at ${url} for language ${language.name}`);
             } else {
                 let descriptionBlob: string = jsonPatternMatches[0] as string;
                 let description: string[] = descriptionBlob.split(/<p>.*?<\/p>/gm)
@@ -53,7 +53,7 @@ export default function LanguagePage(props: Props) {
                 return Promise.resolve(description);
             }        
         } else {
-            return Promise.reject(`Nothing found at link ${wikipediaDescriptionLink}`);
+            return Promise.reject(`Nothing found at link ${language.wikipediaDescriptionLink}`);
         }
     }
 

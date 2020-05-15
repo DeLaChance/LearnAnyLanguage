@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TypeOrmCrudService } from "@nestjsx/crud-typeorm";
 import { Repository } from 'typeorm';
@@ -7,6 +7,7 @@ import { PracticeList } from "../../domain/PracticeList";
 import { Translation } from "../../domain/Translation";
 import { Word } from "../../domain/Word";
 import { Language } from "../../domain/Language";
+import { PracticeListDto } from "../../adapter/http/dto/PracticeListDto";
 
 @Injectable()
 export class PracticeListService extends TypeOrmCrudService<PracticeList> {
@@ -63,6 +64,17 @@ export class PracticeListService extends TypeOrmCrudService<PracticeList> {
         await this.wordRepo.save(targetWord);
 
         let practiceList: PracticeList = await this.repo.findOneOrFail(listId);
+        return Promise.resolve(practiceList);
+    }
+
+    async createEmptyList(practiceListDto: PracticeListDto): Promise<PracticeList> {
+        let sourceLanguage: Language = await this.languageRepo.findOneOrFail(practiceListDto.sourceLanguage);
+        let targetLanguage: Language = await this.languageRepo.findOneOrFail(practiceListDto.targetLanguage);
+
+        Logger.log(`Creating list with name ${practiceListDto.name} and languages ${sourceLanguage.iso2Code} ` +
+            `to ${targetLanguage.iso2Code}`);
+        let practiceList: PracticeList = PracticeList.newEmptyList(sourceLanguage, targetLanguage, practiceListDto.name);
+        practiceList = await this.repo.save(practiceList);
         return Promise.resolve(practiceList);
     }
 }

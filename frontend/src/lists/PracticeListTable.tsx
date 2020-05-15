@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { CircularProgress } from '@material-ui/core';
 import MaterialTable, { Column, MTableBodyRow } from 'material-table';
-import { PracticeList } from '../domain/PracticeList';
-import config from '../config/config.json';
-import { CircularProgress, createStyles, makeStyles, Theme } from '@material-ui/core';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import React, { useEffect, useState } from 'react';
+import BackendHttpClient from '../clients/BackendHttpClient';
 import ArrowBackButton from '../components/ArrowBackButton';
+import { PracticeList } from '../domain/PracticeList';
+
 
 interface Row {
     id: number;
@@ -23,6 +23,8 @@ export type Props = {
 
 export default function PracticeListTable(props: Props) {
 
+    let client: BackendHttpClient = new BackendHttpClient();
+
     // Hooks
     const [practiceList, setPracticeList] = useState<PracticeList>();
 
@@ -33,16 +35,10 @@ export default function PracticeListTable(props: Props) {
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
-        fetchPracticeList().then(practiceList => updatePracticeListAndTableData(practiceList));
+        client.fetchPracticeList(props.practiceListId)
+            .then(practiceList => updatePracticeListAndTableData(practiceList));
     }, []); 
 
-    const fetchPracticeList = async function(): Promise<PracticeList> {
-        const requestOptions = {
-            method: 'GET'
-        };
-        let url: string = `${config.backendBaseUrl}lists/${props.practiceListId}`;
-        return makeHttpRequest(url, requestOptions);
-    };
 
     const updatePracticeListAndTableData = (practiceList: PracticeList) => {
         console.log("Rerendering practice list");
@@ -68,17 +64,7 @@ export default function PracticeListTable(props: Props) {
 
     const addRowToPracticeList = (newData: Row): Promise<PracticeList> => {
         if (practiceList) {
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    source: newData.source, 
-                    target: newData.target 
-                })
-            };
-            let url: string = `${config.backendBaseUrl}lists/${practiceList.id}/add`;
-    
-            return makeHttpRequest(url, requestOptions);
+            return client.addTranslationtoPracticeList(props.practiceListId, newData.source, newData.target);
         } else {
             return Promise.reject("Practice list does not exist");
         }
@@ -89,16 +75,7 @@ export default function PracticeListTable(props: Props) {
         let promise: Promise<PracticeList>;
         if (practiceList) {
             if (oldData) {
-                const requestOptions = {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        source: newData.source, 
-                        target: newData.target 
-                    })
-                };
-                let url: string = `${config.backendBaseUrl}lists/${practiceList.id}/${oldData.id}/edit`;
-                promise = makeHttpRequest(url, requestOptions);
+                promise = client.editPracticeList(props.practiceListId, oldData.id, newData.source, newData.target);
             } else {
                 promise = Promise.reject("Practice list does not exist");
             }
@@ -113,31 +90,12 @@ export default function PracticeListTable(props: Props) {
         
         let promise: Promise<PracticeList>;
         if (practiceList) {
-            const requestOptions = {
-                method: 'DELETE',
-            };
-            
-            let url: string = `${config.backendBaseUrl}lists/${practiceList.id}/${oldData.id}/delete`;
-            promise = makeHttpRequest(url, requestOptions);        
+            promise = client.deleteFromPracticeList(props.practiceListId, oldData.id);
         } else {
             promise = Promise.reject("Practice list does not exist");            
         }
 
         return promise;
-    };
-
-    const makeHttpRequest = (url: string, requestOptions: any): Promise<PracticeList> => {
-        return fetch(url, requestOptions)
-            .then(async httpReponse => {
-                if (httpReponse.status === 201 || httpReponse.status === 200 
-                    || httpReponse.status === 204) {
-                    let responseJson = await httpReponse.json();
-                    let practiceList: PracticeList = PracticeList.from(responseJson);                        
-                    return Promise.resolve(practiceList);
-                } else {
-                    return Promise.reject("Backend is down.");
-                }   
-            });        
     };
 
     const mapPracticeList = (practiceList: PracticeList): Row[] => {
@@ -179,15 +137,14 @@ export default function PracticeListTable(props: Props) {
                         icon: () => <ArrowBackButton goTo="/lists/"/>,
                         tooltip: 'Back',
                         isFreeAction: true,
-                        onClick: () => 
-                            fetchPracticeList().then(practiceList => updatePracticeListAndTableData(practiceList)),
+                        onClick: () => {}
                     },                    
                     {
                         icon: 'refresh',
                         tooltip: 'Refresh Data',
                         isFreeAction: true,
-                        onClick: () => 
-                            fetchPracticeList().then(practiceList => updatePracticeListAndTableData(practiceList)),
+                        onClick: () => client.fetchPracticeList(props.practiceListId)
+                            .then(practiceList => updatePracticeListAndTableData(practiceList)),
                     }
                 ]}      
             />

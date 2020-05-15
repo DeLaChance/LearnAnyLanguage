@@ -11,6 +11,7 @@ import { theme } from './config/Theme';
 import { MuiThemeProvider, CssBaseline } from '@material-ui/core';
 import ListsPage from './lists/ListsPage';
 import PracticeListPage from './lists/PracticeListPage';
+import StartPracticeRunPage from './runs/StartPracticeRunPage';
 
 export default class App extends React.Component {
     render() {
@@ -22,14 +23,17 @@ export default class App extends React.Component {
 
                     <Switch>
                         <Route path="/languages">
-                            <LanguagePage iso2Codes={['nl', 'en', 'fr', 'de', 'zh', 'hi', 'ar']} />
+                            <LanguagePage />
                         </Route>
                         <Route path="/lists/:practiceListId">
                             <PracticeListPage />
                         </Route>
                         <Route path="/lists">
                             <ListsPage />
-                        </Route>    
+                        </Route>
+                        <Route path="/runs/:_practiceListId/start">
+                            <StartPracticeRunPage />
+                        </Route>                            
                         <Route path="/">                        
                         </Route>                    
                     </Switch>

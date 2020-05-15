@@ -13,6 +13,7 @@ import { CommandBus } from "@nestjs/cqrs";
 import { CreatePracticeRunCommand } from "../../domain/commands/CreatePracticeRunCommand";
 import { TranslationDto } from "./dto/TranslationDto";
 import { HttpResponseInterceptor} from "./HttpResponseInterceptor";
+import { PracticeListDto } from "./dto/PracticeListDto";
 
 @Crud({
   model: {
@@ -46,6 +47,11 @@ export class PracticeListController implements CrudController<PracticeList> {
     }
 
     @Post("create")
+    createEmptyList(@Body() practiceListDto: PracticeListDto): Promise<PracticeList> {
+        return this.service.createEmptyList(practiceListDto);
+    }
+
+    @Post("importFile")
     @UseInterceptors(FileInterceptor('file', 
         {
             storage: diskStorage({

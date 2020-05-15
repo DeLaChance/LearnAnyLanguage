@@ -1,6 +1,6 @@
 ## TODO:
-- Practice list editing 
 - Upload file button 
+- Upload empty list button
 - Test execution
 - Practice run overview
 - Make it in a docker container + start scripts

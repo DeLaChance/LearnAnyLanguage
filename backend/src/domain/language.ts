@@ -17,6 +17,18 @@ export class Language implements AbstractEntity<string> {
     })
     name: string;
 
+    @Column({
+        length: 512,
+        nullable: true
+    })
+    wikipediaDescriptionLink: string;
+
+    @Column({
+        length: 512,
+        nullable: true
+    })
+    learnMoreWikipediaLink: string;
+
     getID(): string {
         return this.iso2Code;
     }
