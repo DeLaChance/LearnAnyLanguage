@@ -154,7 +154,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
             translationAttempt = translationAttempt.timeOut();
             translationAttempt = await this.translationAttemptRepo.save(translationAttempt);
 
-            Logger.log(`Answer timeout on ${practiceRun.id} for ${translationAttempt.id}.`);
+            Logger.log(`Answer timeout for run ${practiceRun.id}: expected='${translationAttempt.determineCorrectAnswer()}`);            
             this.cancelExistingTimeOut(runId);
 
             practiceRun = await this.repo.findOneOrFail(runId);

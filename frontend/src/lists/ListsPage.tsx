@@ -1,20 +1,18 @@
-import React, { useEffect, useState, ReactElement } from 'react';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { IconButton, ListItemSecondaryAction, Tooltip } from '@material-ui/core';
 import List from '@material-ui/core/List';
-import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import { useHistory } from "react-router-dom";
-import { PracticeList } from '../domain/PracticeList';
-import config from '../config/config.json';
-import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
-import SchoolIcon from '@material-ui/icons/School';
-import EditIcon from '@material-ui/icons/Edit';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import { IconButton, ListItemSecondaryAction, Tooltip } from '@material-ui/core';
+import EditIcon from '@material-ui/icons/Edit';
+import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
+import SchoolIcon from '@material-ui/icons/School';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from "react-router-dom";
+import backendClient from '../clients/BackendHttpClient';
+import { PracticeList } from '../domain/PracticeList';
 import AddNewListDialog from './AddNewListDialog';
-import BackendHttpClient from '../clients/BackendHttpClient';
 import UploadFileDialog from './UploadFileDialog';
 
 export default function ListsPage() {
@@ -29,7 +27,6 @@ export default function ListsPage() {
         preparePracticeLists();
     }, []); 
 
-    let backendClient: BackendHttpClient = new BackendHttpClient();
     const preparePracticeLists = async function(): Promise<void> {
 
         backendClient.fetchPracticeLists()

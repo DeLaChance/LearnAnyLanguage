@@ -9,26 +9,52 @@ enum Status {
 }
 
 export class PracticeRun {
+    
     id: string;
     startDate: Date;
     lastActionDate: Date;
     status: Status;
     translationAttempts: TranslationAttempt[];
+    listId: string;
 
     constructor(id: string, startDate: Date, lastActionDate: Date, status: Status, 
-        translationAttempts: TranslationAttempt[]) {
+        translationAttempts: TranslationAttempt[], listId: string) {
 
         this.id = id;
         this.startDate = startDate;
         this.lastActionDate = lastActionDate;
         this.status = status;
         this.translationAttempts = translationAttempts;
+        this.listId = listId;
     }
 
-    static from(json: any): PracticeRun {
-        
-        return new PracticeRun(json.id, json.startDate, json.lastActionDate, 
-            this.mapValueToStatus(json.status), TranslationAttempt.fromMany(json.translationAttempts));
+    determineProgressCount(): number {
+        return this.translationAttempts
+            .filter(translationAttempt => translationAttempt.answerWasGiven || translationAttempt.timedOut)
+            .length;
+    }
+
+    determineTotalCount(): number {
+        return this.translationAttempts.length;
+    }
+
+    isActive() {
+        return this.status === Status.RUNNING;
+    }
+
+    static fromMany(practiceRunListJson: any): PracticeRun[] {
+        return practiceRunListJson.map((practiceRunJson: any) => this.from(practiceRunJson));
+    }
+
+    static from(practiceRunJson: any): PracticeRun {        
+        return new PracticeRun(
+            practiceRunJson.id, 
+            new Date(practiceRunJson.startDate), 
+            new Date(practiceRunJson.lastActionDate), 
+            this.mapValueToStatus(practiceRunJson.status),             
+            TranslationAttempt.fromMany(practiceRunJson.translationAttempts),
+            practiceRunJson.listId
+        );
     }
 
     static mapValueToStatus(value: string): Status {

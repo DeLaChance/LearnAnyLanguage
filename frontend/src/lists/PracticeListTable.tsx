@@ -1,7 +1,7 @@
 import { CircularProgress } from '@material-ui/core';
 import MaterialTable, { Column, MTableBodyRow } from 'material-table';
 import React, { useEffect, useState } from 'react';
-import BackendHttpClient from '../clients/BackendHttpClient';
+import backendClient from '../clients/BackendHttpClient';
 import ArrowBackButton from '../components/ArrowBackButton';
 import { PracticeList } from '../domain/PracticeList';
 
@@ -23,8 +23,6 @@ export type Props = {
 
 export default function PracticeListTable(props: Props) {
 
-    let client: BackendHttpClient = new BackendHttpClient();
-
     // Hooks
     const [practiceList, setPracticeList] = useState<PracticeList>();
 
@@ -35,7 +33,7 @@ export default function PracticeListTable(props: Props) {
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
-        client.fetchPracticeList(props.practiceListId)
+        backendClient.fetchPracticeList(props.practiceListId)
             .then(practiceList => updatePracticeListAndTableData(practiceList));
     }, []); 
 
@@ -64,7 +62,7 @@ export default function PracticeListTable(props: Props) {
 
     const addRowToPracticeList = (newData: Row): Promise<PracticeList> => {
         if (practiceList) {
-            return client.addTranslationtoPracticeList(props.practiceListId, newData.source, newData.target);
+            return backendClient.addTranslationtoPracticeList(props.practiceListId, newData.source, newData.target);
         } else {
             return Promise.reject("Practice list does not exist");
         }
@@ -75,7 +73,7 @@ export default function PracticeListTable(props: Props) {
         let promise: Promise<PracticeList>;
         if (practiceList) {
             if (oldData) {
-                promise = client.editPracticeList(props.practiceListId, oldData.id, newData.source, newData.target);
+                promise = backendClient.editPracticeList(props.practiceListId, oldData.id, newData.source, newData.target);
             } else {
                 promise = Promise.reject("Practice list does not exist");
             }
@@ -90,7 +88,7 @@ export default function PracticeListTable(props: Props) {
         
         let promise: Promise<PracticeList>;
         if (practiceList) {
-            promise = client.deleteFromPracticeList(props.practiceListId, oldData.id);
+            promise = backendClient.deleteFromPracticeList(props.practiceListId, oldData.id);
         } else {
             promise = Promise.reject("Practice list does not exist");            
         }
@@ -143,7 +141,7 @@ export default function PracticeListTable(props: Props) {
                         icon: 'refresh',
                         tooltip: 'Refresh Data',
                         isFreeAction: true,
-                        onClick: () => client.fetchPracticeList(props.practiceListId)
+                        onClick: () => backendClient.fetchPracticeList(props.practiceListId)
                             .then(practiceList => updatePracticeListAndTableData(practiceList)),
                     }
                 ]}      

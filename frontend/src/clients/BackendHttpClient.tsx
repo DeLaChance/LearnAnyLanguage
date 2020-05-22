@@ -4,7 +4,7 @@ import { Language } from "../domain/Language";
 import { PracticeRunConfiguration } from "../domain/PracticeRunConfiguration";
 import { PracticeRun } from "../domain/PracticeRun";
 
-export default class BackendHttpClient {
+class BackendHttpClient {
 
     fetchLanguages(): Promise<Language[]> {
         const requestOptions = {
@@ -119,7 +119,6 @@ export default class BackendHttpClient {
                 return Promise.resolve(practiceList);
             });
     }
-
     
     startPracticeRun(practiceListId: string, configuration: PracticeRunConfiguration): Promise<PracticeRun> {
         const requestOptions = {
@@ -128,11 +127,29 @@ export default class BackendHttpClient {
         };
         
         let url: string = `${config.backendBaseUrl}runs/${practiceListId}/start`;
-        return this.makePracticeListHttpRequest(url, requestOptions)
+        return this.makePracticeRunHttpRequest(url, requestOptions)
             .then((responseJson) => {
                 let practiceRun: PracticeRun = PracticeRun.from(responseJson);
                 return Promise.resolve(practiceRun);
             }); 
+    }
+
+    fetchPracticeRuns(): Promise<PracticeRun[]> {
+
+        const requestOptions = {
+            method: 'GET'
+        }
+        let url: string = `${config.backendBaseUrl}runs/`;
+        return this.makeHttpRequest(url, requestOptions)
+            .then(responseJson => PracticeRun.fromMany(responseJson));
+    }
+
+    makePracticeRunHttpRequest(url: string, requestOptions: any): Promise<PracticeRun> {
+        return this.makeHttpRequest(url, requestOptions)
+            .then((responseJson) => {
+                let practiceRun: PracticeRun = PracticeRun.from(responseJson);                        
+                return Promise.resolve(practiceRun);
+            });
     }
 
     makeHttpRequest(url: string, requestOptions: any): Promise<any> {
@@ -149,3 +166,6 @@ export default class BackendHttpClient {
             });       
     }
 }
+
+let backendClient: BackendHttpClient = new BackendHttpClient();
+export default backendClient;

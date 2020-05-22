@@ -12,6 +12,7 @@ import { MuiThemeProvider, CssBaseline } from '@material-ui/core';
 import ListsPage from './lists/ListsPage';
 import PracticeListPage from './lists/PracticeListPage';
 import StartPracticeRunPage from './runs/StartPracticeRunPage';
+import RunsPage from './runs/RunsPage';
 
 export default class App extends React.Component {
     render() {
@@ -31,6 +32,9 @@ export default class App extends React.Component {
                         <Route path="/lists">
                             <ListsPage />
                         </Route>
+                        <Route path="/runs">
+                            <RunsPage />
+                        </Route>                        
                         <Route path="/runs/:_practiceListId/start">
                             <StartPracticeRunPage />
                         </Route>                            

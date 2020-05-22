@@ -10,7 +10,7 @@ import Select from '@material-ui/core/Select/Select';
 import { Language } from '../domain/Language';
 import { MenuItem, FormControl, Theme, makeStyles, createStyles, InputLabel, Divider } from '@material-ui/core';
 import { Optional } from "typescript-optional";
-import BackendHttpClient from '../clients/BackendHttpClient';
+import backendClient from '../clients/BackendHttpClient';
 
 export type Props = {
     open: boolean;
@@ -28,7 +28,6 @@ export default function AddNewListDialog(props: Props) {
     const [errors, setErrors] = useState<boolean[]>([false, false, false, false]);
 
     // Asynchronous remote data fetching. 'useEffect' is similar to componentDidMount and componentDidUpdate.
-    let backendClient: BackendHttpClient = new BackendHttpClient();
     useEffect(() => {
         backendClient.fetchLanguages()
           .then(languages => setLanguages(languages));

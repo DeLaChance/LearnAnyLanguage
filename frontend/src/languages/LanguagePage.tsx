@@ -5,13 +5,11 @@ import React, { useEffect, useState } from 'react';
 import config from '../config/config.json';
 import { Language } from '../domain/Language';
 import LanguageCard from "./LanguageCard";
-import BackendHttpClient from '../clients/BackendHttpClient';
+import backendClient from '../clients/BackendHttpClient';
 
 export default function LanguagePage() {
 
     const [languages, setLanguages] = useState<Language[]>([]);
-
-    let client: BackendHttpClient = new BackendHttpClient();
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
@@ -19,7 +17,7 @@ export default function LanguagePage() {
     }, []); 
 
     const prepareLanguages = async function(): Promise<void> {
-        let languages: Language[] = await client.fetchLanguages();
+        let languages: Language[] = await backendClient.fetchLanguages();
 
         languages = await Promise.all(languages.map(async language => {
             let description: string[] = await fetchDescription(language);

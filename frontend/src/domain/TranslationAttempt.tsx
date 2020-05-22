@@ -18,8 +18,8 @@ export class TranslationAttempt {
         this.lastActionDate = lastActionDate;        
     }
 
-    static fromMany(json: any): TranslationAttempt[] {
-        return json.translationAttempts.map((jsonArrayElement: any) => this.from(jsonArrayElement));
+    static fromMany(translationAttemptListJson: any): TranslationAttempt[] {
+        return translationAttemptListJson.map((jsonArrayElement: any) => this.from(jsonArrayElement));
 
     }
 

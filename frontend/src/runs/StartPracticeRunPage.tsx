@@ -4,7 +4,7 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router";
-import BackendHttpClient from "../clients/BackendHttpClient";
+import backendClient from "../clients/BackendHttpClient";
 import { Language } from "../domain/Language";
 import { PracticeList } from "../domain/PracticeList";
 import LanguageAvatar from "../languages/LanguageAvatar";
@@ -64,15 +64,14 @@ export default function StartPracticeRunPage() {
 
 
     // Similar to componentDidMount and componentDidUpdate:
-    let client: BackendHttpClient = new BackendHttpClient();
     useEffect(() => {
-        client.fetchPracticeList(practiceListId)
+        backendClient.fetchPracticeList(practiceListId)
             .then(practiceList => {
                 setPracticeList(practiceList);
 
-                client.fetchLanguageByIso2Code(practiceList.source)
+                backendClient.fetchLanguageByIso2Code(practiceList.source)
                     .then(sourceLanguage => setSourceLanguage(sourceLanguage));
-                client.fetchLanguageByIso2Code(practiceList.target)
+                backendClient.fetchLanguageByIso2Code(practiceList.target)
                     .then(targetLanguage => setTargetLanguage(targetLanguage));            
             });
         
@@ -125,7 +124,7 @@ export default function StartPracticeRunPage() {
         const startRun = () => {
             let configuration: PracticeRunConfiguration = new PracticeRunConfiguration(practiceList.id, timePerWord, 
                 testDirection === TestDirection.SOURCE_TO_TARGET);
-            client.startPracticeRun(practiceList.id, configuration)
+            backendClient.startPracticeRun(practiceList.id, configuration)
                 .then(practiceRun => redirect(`/runs/${practiceRun.id}`));
         };
 
