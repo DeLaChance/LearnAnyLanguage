@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryGenerat
 import { Optional } from "typescript-optional";
 import { AbstractEntity } from "./AbstractEntity";
 import { TranslationAttempt } from "./TranslationAttempt";
+import { CreatePracticeRunCommand } from "./commands/CreatePracticeRunCommand";
 
 /**
  * A {@link PracticeRun} is an assessment of all {@link Translation}'s (word pairs) in a {@link PracticeList}.
@@ -18,8 +19,17 @@ export class PracticeRun implements AbstractEntity<string> {
     @UpdateDateColumn()
     lastActionDate: Date;
 
+    @Column({ nullable: false})
+    listId: string;
+
     @Column('text', { nullable: false})
     status: Status;
+
+    @Column({ nullable: false })
+    timePerWord: number;
+
+    @Column()
+    sourceToTarget: boolean;
 
     @OneToMany(type => TranslationAttempt, attempt => attempt.practiceRun, { eager: true })
     @JoinColumn()
@@ -74,6 +84,18 @@ export class PracticeRun implements AbstractEntity<string> {
     isFinished(): boolean {
         return (this.status == Status.ABORTED || this.status == Status.FINISHED);
     }
+
+    static createNew(command: CreatePracticeRunCommand): PracticeRun {
+        let practiceRun: PracticeRun = new PracticeRun();
+        
+        practiceRun.status = Status.RUNNING;
+        practiceRun.listId = command.listId;
+        practiceRun.sourceToTarget = command.configuration.sourceToTarget;
+        practiceRun.timePerWord = command.configuration.timePerWord; 
+
+        return practiceRun;
+    }
+
 }
 
 export enum Status {

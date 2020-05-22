@@ -15,6 +15,7 @@ import { PracticeRunAnswerTimedOutEvent } from '../domain/events/PracticeRunAnsw
 import { PracticeRunStoppedEvent } from '../domain/events/PracticeRunStoppedEvent';
 import e from 'express';
 import { PracticeRunRestartedEvent } from '../domain/events/PracticeRunRestartedEvent';
+import { CreatePracticeRunCommand } from '../domain/commands/CreatePracticeRunCommand';
 
 @Injectable()
 export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
@@ -35,15 +36,17 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         super(repo);
     }
 
-    async start(listId: string): Promise<PracticeRun> {
-        let practiceList: PracticeList = await this.practiceListRepo.findOneOrFail(listId);
-        
-        let practiceRun: PracticeRun = new PracticeRun();
-        practiceRun.status = Status.RUNNING;
+    async start(command: CreatePracticeRunCommand): Promise<PracticeRun> {
+        let practiceList: PracticeList = await this.practiceListRepo.findOneOrFail(command.listId);
+
+        let practiceRun: PracticeRun = PracticeRun.createNew(command);
         practiceRun = await this.repo.save(practiceRun);
 
-        practiceRun.translationAttempts = await Promise.all(practiceList.translations
+        // TODO: can this be done in one save-action?
+        let translationAttempts: TranslationAttempt[] = await Promise.all(practiceList.translations
             .map(translation => this.mapToTranslationAttempt(translation, practiceRun)));
+        practiceRun.translationAttempts = translationAttempts;
+        practiceRun = await this.repo.save(practiceRun);
 
         Logger.log(`Created a practice run '${practiceRun.id}' for practice list '${practiceList.id}'`);
         this.publishPracticeRunCreatedEvent(practiceRun.id);
@@ -119,7 +122,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
             
             this.cancelExistingTimeOut(runId);
 
-            Logger.log(`Answer (id=${translationAttempt.id}, actual='${answer}',expected='${translationAttempt.translation.target.value}',` +
+            Logger.log(`Answer (id=${translationAttempt.id}, actual='${answer}',expected='${translationAttempt.determineCorrectAnswer()}',` +
                 `correct='${translationAttempt.isCorrectAnswer()}') was given to practice run '${practiceRun.id}'`);
             
             practiceRun = await this.repo.findOneOrFail(runId);
@@ -200,7 +203,9 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         this.eventBus.publish(event);
     }
 
-    private async mapToTranslationAttempt(translation: Translation, practiceRun: PracticeRun): Promise<TranslationAttempt> {
+    private async mapToTranslationAttempt(translation: Translation, practiceRun: PracticeRun): 
+        Promise<TranslationAttempt> {
+
         let translationAttempt: TranslationAttempt = new TranslationAttempt();
         translationAttempt.practiceRun = practiceRun;
         translationAttempt.translation = translation;
@@ -214,9 +219,11 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         this.schedulerRegistry.deleteTimeout(runId);
     }
 
-    private scheduleNextAnswerTimeOut(runId: string) {
+    private async scheduleNextAnswerTimeOut(runId: string) {
         const callback = () => this.timeOutAnswer(runId);
-        const timeOutInMillis = 50000;
+
+        let practiceRun: PracticeRun = await this.repo.findOneOrFail(runId);
+        const timeOutInMillis = practiceRun.timePerWord * 1000;
         const timeout = setTimeout(callback, timeOutInMillis);
         this.schedulerRegistry.addTimeout(runId, timeout);
         Logger.log(`Scheduling answer timeout for run='${runId}' in ${timeOutInMillis}ms.`);

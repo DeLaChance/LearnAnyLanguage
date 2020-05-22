@@ -11,7 +11,7 @@ export class CreatePracticeRunCommandHandler implements ICommandHandler<CreatePr
     practiceRunService: PracticeRunService;
 
     execute(command: CreatePracticeRunCommand): Promise<PracticeRun> {
-        return this.practiceRunService.start(command.listId);
+        return this.practiceRunService.start(command);
     }
     
 }

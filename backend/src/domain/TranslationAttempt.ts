@@ -38,7 +38,16 @@ export class TranslationAttempt implements AbstractEntity<string> {
 
     isCorrectAnswer() {
         // TODO: simple matching, can do more refined stuff
-        return this.answer === this.translation.target.value;
+        let correctAnswer: string = this.determineCorrectAnswer();
+        return this.answer === correctAnswer;
+    }
+
+    determineCorrectAnswer() {
+        if (this.practiceRun.sourceToTarget === true) {
+            return this.translation.target.value;
+        } else {
+            return this.translation.source.value;
+        }
     }
 
     giveAnswer(answer: string): TranslationAttempt {

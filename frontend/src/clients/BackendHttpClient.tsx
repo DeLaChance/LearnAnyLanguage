@@ -1,6 +1,8 @@
 import { PracticeList } from "../domain/PracticeList";
 import config from "../config/config.json";
 import { Language } from "../domain/Language";
+import { PracticeRunConfiguration } from "../domain/PracticeRunConfiguration";
+import { PracticeRun } from "../domain/PracticeRun";
 
 export default class BackendHttpClient {
 
@@ -116,6 +118,21 @@ export default class BackendHttpClient {
                 let practiceList: PracticeList = PracticeList.from(responseJson);                        
                 return Promise.resolve(practiceList);
             });
+    }
+
+    
+    startPracticeRun(practiceListId: string, configuration: PracticeRunConfiguration): Promise<PracticeRun> {
+        const requestOptions = {
+            method: 'POST',
+            body: JSON.stringify(configuration)
+        };
+        
+        let url: string = `${config.backendBaseUrl}runs/${practiceListId}/start`;
+        return this.makePracticeListHttpRequest(url, requestOptions)
+            .then((responseJson) => {
+                let practiceRun: PracticeRun = PracticeRun.from(responseJson);
+                return Promise.resolve(practiceRun);
+            }); 
     }
 
     makeHttpRequest(url: string, requestOptions: any): Promise<any> {

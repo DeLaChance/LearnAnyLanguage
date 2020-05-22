@@ -14,6 +14,7 @@ import { CreatePracticeRunCommand } from "../../domain/commands/CreatePracticeRu
 import { TranslationDto } from "./dto/TranslationDto";
 import { HttpResponseInterceptor} from "./HttpResponseInterceptor";
 import { PracticeListDto } from "./dto/PracticeListDto";
+import { PracticeRunConfiguration } from "./dto/PracticeRunConfiguration";
 
 @Crud({
   model: {
@@ -68,9 +69,10 @@ export class PracticeListController implements CrudController<PracticeList> {
     }
     
     @Post(":listId/start")
-    startPracticeRun(@Param("listId") listId: string): Promise<PracticeRun> {
+    startPracticeRun(@Param("listId") listId: string, @Body() configuration: PracticeRunConfiguration): Promise<PracticeRun> {
         let command: CreatePracticeRunCommand = new CreatePracticeRunCommand();
         command.listId = listId;
+        command.configuration = configuration;
 
         return this.commandBus.execute(command);
     }
