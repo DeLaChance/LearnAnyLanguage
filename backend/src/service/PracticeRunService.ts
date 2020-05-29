@@ -122,7 +122,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
             
             this.cancelExistingTimeOut(runId);
 
-            let correctAnswer: string = translationAttempt.determineCorrectAnswer(practiceRun.sourceToTarget);
+            let correctAnswer: string = translationAttempt.correctAnswer;
             let isCorrectAnswer = correctAnswer === answer;
 
             Logger.log(`Answer (id=${translationAttempt.id}, actual='${answer}',expected='${correctAnswer}',` +
@@ -157,9 +157,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
             translationAttempt = translationAttempt.timeOut();
             translationAttempt = await this.translationAttemptRepo.save(translationAttempt);
 
-            let correctAnswer: string = translationAttempt.determineCorrectAnswer(practiceRun.sourceToTarget);
-
-            Logger.log(`Answer timeout for run ${practiceRun.id}: expected='${correctAnswer}`);            
+            Logger.log(`Answer timeout for run ${practiceRun.id}: expected='${translationAttempt.correctAnswer}`);            
             this.cancelExistingTimeOut(runId);
 
             practiceRun = await this.repo.findOneOrFail(runId);
@@ -214,8 +212,10 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         let translationAttempt: TranslationAttempt = new TranslationAttempt();
         translationAttempt.practiceRun = practiceRun;
         translationAttempt.translation = translation;
-        translationAttempt.answerWasGiven = false;
+        translationAttempt.correctAnswer = translation.determineCorrectAnswer(practiceRun.sourceToTarget);
+        translationAttempt.input = translation.determineSource(practiceRun.sourceToTarget);
         translationAttempt.timedOut = false;
+        translationAttempt.answerWasGiven = false;
 
         return this.translationAttemptRepo.save(translationAttempt);
     }

@@ -11,7 +11,7 @@ import { TranslationDto } from '../adapter/http/dto/TranslationDto';
  */
 @Entity()
 export class Translation implements AbstractEntity<number> {
-    
+        
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -36,6 +36,22 @@ export class Translation implements AbstractEntity<number> {
     getID(): number {
         return this.id;
     }    
+
+    determineSource(sourceToTarget: boolean): string {
+        if (sourceToTarget) {
+            return this.source.value;
+        } else {
+            return this.target.value;
+        }
+    }
+
+    determineCorrectAnswer(sourceToTarget: boolean): string {
+        if (sourceToTarget) {
+            return this.target.value;
+        } else {
+            return this.source.value;
+        }
+    }
 
     static from(sourceWord: Word, targetWord: Word, practiceList: PracticeList): Translation {
         let translation: Translation = new Translation();

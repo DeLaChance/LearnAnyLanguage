@@ -2,7 +2,7 @@ import { AbstractEntity } from "./AbstractEntity";
 import { PrimaryGeneratedColumn, ManyToOne, Column, UpdateDateColumn, Entity } from "typeorm";
 import { Translation } from "./Translation";
 import { PracticeRun } from "./PracticeRun";
-import { Exclude, Transform } from "class-transformer";
+import { Exclude, Transform, Expose } from "class-transformer";
 
 /**
  * A {@link TranslationAttempt} is an assessment of an individual {@link Translation}.
@@ -17,7 +17,13 @@ export class TranslationAttempt implements AbstractEntity<string> {
     translation: Translation;
 
     @Column({ nullable: true })
-    answer: string;
+    givenAnswer: string;
+
+    @Column({ nullable: false })
+    input: string;
+
+    @Column({ nullable: false })
+    correctAnswer: string;
 
     @Column()
     answerWasGiven: boolean;
@@ -36,27 +42,20 @@ export class TranslationAttempt implements AbstractEntity<string> {
         return this.id;
     }
 
-    determineCorrectAnswer(sourceToTarget: boolean) {
-        if (sourceToTarget === true) {
-            return this.translation.target.value;
-        } else {
-            return this.translation.source.value;
-        }
-    }
-
     giveAnswer(answer: string): TranslationAttempt {
-        this.answer = answer;
-        this.answerWasGiven = true;
+        this.givenAnswer = answer;
         this.timedOut = false;
+        this.answerWasGiven = true;
 
         return this;
     }    
 
     timeOut(): TranslationAttempt {
-        this.answer = "";
-        this.answerWasGiven = false;
+        this.givenAnswer = "";
         this.timedOut = true;
+        this.answerWasGiven = false;
         
         return this;
     }
+
 }

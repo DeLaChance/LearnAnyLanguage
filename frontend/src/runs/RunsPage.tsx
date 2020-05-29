@@ -130,11 +130,11 @@ export default function RunsPage() {
             secondaryActionBlock = generateProgressBar(run);
         } else {
             runDescription += ` and finished at ${run.lastActionDate.toLocaleString()}.`;
-            secondaryActionBlock = <></>;
+            secondaryActionBlock = generateCompletionBar(run);
         }
                 
         return (
-            <ListItem key={run.id} className={classes.listItem} button>
+            <ListItem key={run.id} className={classes.listItem} button onClick={(e) => redirect(`/runs/${run.id}`)}>
                 <ListItemText primary={list.name} secondary={runDescription} />
 
                 <ListItemSecondaryAction className={classes.listItemActionBlock}>
@@ -161,6 +161,23 @@ export default function RunsPage() {
             </>
         );
     };
+
+    const generateCompletionBar = (run: PracticeRun) => {
+        let correctAnswersCount: number = run.determineCorrectAnswersCount();
+        let wrongAnswersCount: number = run.determineWrongAnswersCount();
+
+        let progressText: string = `Run finished. # of correct is ${correctAnswersCount}. # of wrong is ${wrongAnswersCount}.`;
+        
+        return (
+            <>
+            <Tooltip title={progressText}>
+                <LinearProgress variant="determinate" value={correctAnswersCount} 
+                    valueBuffer={correctAnswersCount+wrongAnswersCount} color="secondary" />                    
+            </Tooltip>
+            <Typography variant="subtitle2">{`# of correct: ${correctAnswersCount}, # of wrong: ${wrongAnswersCount}`}</Typography>
+            </>
+        );
+    }
 
     const runListItems: React.ReactElement[] = [];
     groupRunsByListId(runs).forEach((runs, listId) => runListItems.push(...generateListItems(listId, runs)));

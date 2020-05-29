@@ -42,6 +42,14 @@ export class PracticeRun {
         return this.status === Status.RUNNING;
     }
 
+    determineWrongAnswersCount(): number {
+        return this.translationAttempts.filter(translationAttempt => translationAttempt.isWrong()).length;
+    }
+
+    determineCorrectAnswersCount(): number {
+        return this.translationAttempts.filter(translationAttempt => translationAttempt.isCorrect()).length;
+    }
+
     static fromMany(practiceRunListJson: any): PracticeRun[] {
         return practiceRunListJson.map((practiceRunJson: any) => this.from(practiceRunJson));
     }
