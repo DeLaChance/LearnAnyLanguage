@@ -3,6 +3,7 @@ import { Optional } from "typescript-optional";
 import { AbstractEntity } from "./AbstractEntity";
 import { TranslationAttempt } from "./TranslationAttempt";
 import { CreatePracticeRunCommand } from "./commands/CreatePracticeRunCommand";
+import { Transform } from "class-transformer";
 
 /**
  * A {@link PracticeRun} is an assessment of all {@link Translation}'s (word pairs) in a {@link PracticeList}.
@@ -13,6 +14,7 @@ export class PracticeRun implements AbstractEntity<string> {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
+    @Transform(date => date == null ? null : date.valueOf())
     @CreateDateColumn()
     startDate: Date;
 

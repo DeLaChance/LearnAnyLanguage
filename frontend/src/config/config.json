@@ -1,4 +1,5 @@
 {
     "backendBaseUrl": "http://localhost:8180/api/",
-    "proxyUrl": "http://localhost:3100/api/fetchUrl?requestedUrl="
+    "proxyUrl": "http://localhost:3100/api/fetchUrl?requestedUrl=",
+    "websocketUrl": "ws://localhost:8180/"
 }

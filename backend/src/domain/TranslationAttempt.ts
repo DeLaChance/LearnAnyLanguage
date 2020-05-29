@@ -25,8 +25,8 @@ export class TranslationAttempt implements AbstractEntity<string> {
     @Column()
     timedOut: boolean;
 
+    @Exclude()
     @ManyToOne(type => PracticeRun, practiceRun => practiceRun.translationAttempts, { eager: false })
-    @Transform(practiceRun => practiceRun.id)
     practiceRun: PracticeRun;
 
     @UpdateDateColumn()
@@ -36,14 +36,8 @@ export class TranslationAttempt implements AbstractEntity<string> {
         return this.id;
     }
 
-    isCorrectAnswer() {
-        // TODO: simple matching, can do more refined stuff
-        let correctAnswer: string = this.determineCorrectAnswer();
-        return this.answer === correctAnswer;
-    }
-
-    determineCorrectAnswer() {
-        if (this.practiceRun.sourceToTarget === true) {
+    determineCorrectAnswer(sourceToTarget: boolean) {
+        if (sourceToTarget === true) {
             return this.translation.target.value;
         } else {
             return this.translation.source.value;

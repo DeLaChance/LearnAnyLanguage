@@ -4,6 +4,7 @@ import ListItem from '@material-ui/core/ListItem';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import backendClient from '../clients/BackendHttpClient';
+import websocketClient from '../clients/BackendWebSocketClient';
 import { PracticeList } from '../domain/PracticeList';
 import { PracticeRun } from '../domain/PracticeRun';
 
@@ -27,11 +28,43 @@ export default function RunsPage() {
                 let listsMap: Map<string, PracticeList> = new Map<string, PracticeList>();
                 lists.forEach(list => listsMap.set(list.id, list));
                 setListsMap(listsMap);
-                
-                setRuns(runs)
+
+                setRuns(runs);
             });
+
+        websocketClient.subscribe(handleWebsocketData);
     }, []); 
 
+    const handleWebsocketData = (event: any) => {
+        if (event.runId && event.name) {
+            console.log(`RunsPage - handling run ${event.runId} and event name ${event.name}`)
+            updatePracticeRun(event.runId);
+        }
+    };
+
+    const updatePracticeRun = (runId: string) => {
+
+        backendClient.fetchPracticeRun(runId)
+            .then((newRun: PracticeRun) => {
+                setRuns((prevRuns: PracticeRun[]) => [
+                    ...updateRuns(prevRuns, newRun)
+                ]);
+            });
+    };
+
+    const updateRuns = (prevRuns: PracticeRun[], newRun: PracticeRun): PracticeRun[] => {
+        let index: number = prevRuns.findIndex(run => run.id === newRun.id);
+        console.log(`Run ${newRun} and index ${index}`);
+
+
+        if (index >= 0 && index < prevRuns.length) {
+            prevRuns[index] = newRun;
+        } else {
+            prevRuns.push(newRun);
+        }
+
+        return prevRuns;
+    }
 
     const useStyles = makeStyles((theme: Theme) =>
         createStyles({
@@ -82,7 +115,7 @@ export default function RunsPage() {
             runListItems = [];    
         }
 
-        let dividerElement = <Divider></Divider>;
+        let dividerElement = <Divider key={`${listId}-divider`}></Divider>;
         runListItems.push(dividerElement);
         
         return runListItems;

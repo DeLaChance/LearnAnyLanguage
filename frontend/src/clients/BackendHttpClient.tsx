@@ -144,6 +144,16 @@ class BackendHttpClient {
             .then(responseJson => PracticeRun.fromMany(responseJson));
     }
 
+    fetchPracticeRun(runId: string) {
+        const requestOptions = {
+            method: 'GET'
+        }
+        let url: string = `${config.backendBaseUrl}runs/${runId}`;
+        return this.makeHttpRequest(url, requestOptions)
+            .then(responseJson => PracticeRun.from(responseJson));
+    }
+
+
     makePracticeRunHttpRequest(url: string, requestOptions: any): Promise<PracticeRun> {
         return this.makeHttpRequest(url, requestOptions)
             .then((responseJson) => {

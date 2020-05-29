@@ -116,14 +116,17 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
 
         let promise: Promise<TranslationAttempt>;
         if (optional.isPresent()) {
-            let translationAttempt: TranslationAttempt = await this.translationAttemptRepo.findOneOrFail(optional.get().id);
+            let translationAttempt: TranslationAttempt = optional.get();
             translationAttempt = translationAttempt.giveAnswer(answer);
             translationAttempt = await this.translationAttemptRepo.save(translationAttempt);
             
             this.cancelExistingTimeOut(runId);
 
-            Logger.log(`Answer (id=${translationAttempt.id}, actual='${answer}',expected='${translationAttempt.determineCorrectAnswer()}',` +
-                `correct='${translationAttempt.isCorrectAnswer()}') was given to practice run '${practiceRun.id}'`);
+            let correctAnswer: string = translationAttempt.determineCorrectAnswer(practiceRun.sourceToTarget);
+            let isCorrectAnswer = correctAnswer === answer;
+
+            Logger.log(`Answer (id=${translationAttempt.id}, actual='${answer}',expected='${correctAnswer}',` +
+                `correct='${isCorrectAnswer}') was given to practice run '${practiceRun.id}'`);
             
             practiceRun = await this.repo.findOneOrFail(runId);
             if (practiceRun.allAnswersGiven()) {
@@ -150,11 +153,13 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         let promise: Promise<TranslationAttempt>;
         let optional: Optional<TranslationAttempt> = practiceRun.fetchFirstUnanswered();
         if (optional.isPresent()) {
-            let translationAttempt: TranslationAttempt = await this.translationAttemptRepo.findOneOrFail(optional.get().id);
+            let translationAttempt: TranslationAttempt = optional.get();
             translationAttempt = translationAttempt.timeOut();
             translationAttempt = await this.translationAttemptRepo.save(translationAttempt);
 
-            Logger.log(`Answer timeout for run ${practiceRun.id}: expected='${translationAttempt.determineCorrectAnswer()}`);            
+            let correctAnswer: string = translationAttempt.determineCorrectAnswer(practiceRun.sourceToTarget);
+
+            Logger.log(`Answer timeout for run ${practiceRun.id}: expected='${correctAnswer}`);            
             this.cancelExistingTimeOut(runId);
 
             practiceRun = await this.repo.findOneOrFail(runId);
