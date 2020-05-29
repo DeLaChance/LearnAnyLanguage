@@ -172,7 +172,7 @@ export default function RunsPage() {
             <>
             <Tooltip title={progressText}>
                 <LinearProgress variant="determinate" value={correctAnswersCount} 
-                    valueBuffer={correctAnswersCount+wrongAnswersCount} color="secondary" />                    
+                    valueBuffer={correctAnswersCount+wrongAnswersCount} color="primary" />                    
             </Tooltip>
             <Typography variant="subtitle2">{`# of correct: ${correctAnswersCount}, # of wrong: ${wrongAnswersCount}`}</Typography>
             </>

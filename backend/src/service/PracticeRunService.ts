@@ -42,10 +42,12 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         let practiceRun: PracticeRun = PracticeRun.createNew(command);
         practiceRun = await this.repo.save(practiceRun);
 
-        // TODO: can this be done in one save-action?
         let translationAttempts: TranslationAttempt[] = await Promise.all(practiceList.translations
-            .map(translation => this.mapToTranslationAttempt(translation, practiceRun)));
-        practiceRun.translationAttempts = translationAttempts;
+            .map(translation => this.mapToTranslationAttempt(translation, practiceRun))
+        );
+        practiceRun.translationAttempts = this.shuffle(translationAttempts);
+
+        // TODO: can this be done in one save-action?
         practiceRun = await this.repo.save(practiceRun);
 
         Logger.log(`Created a practice run '${practiceRun.id}' for practice list '${practiceList.id}'`);
@@ -233,4 +235,23 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         this.schedulerRegistry.addTimeout(runId, timeout);
         Logger.log(`Scheduling answer timeout for run='${runId}' in ${timeOutInMillis}ms.`);
     }
+
+    private shuffle(array: any[]): any[] {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+      
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+      
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+      
+          // And swap it with the current element.
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+      
+        return array;
+      }
 }

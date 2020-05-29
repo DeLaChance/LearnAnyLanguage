@@ -33,15 +33,15 @@ export default class App extends React.Component {
                         <Route path="/lists">
                             <ListsPage />
                         </Route>
+                        <Route path="/runs/:_practiceListId/start">
+                            <StartPracticeRunPage />
+                        </Route>                            
                         <Route path="/runs/:runId">
                             <RunPage />
                         </Route>        
                         <Route path="/runs">
                             <RunsPage />
                         </Route>                        
-                        <Route path="/runs/:_practiceListId/start">
-                            <StartPracticeRunPage />
-                        </Route>                            
                         <Route path="/">                        
                         </Route>                    
                     </Switch>

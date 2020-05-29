@@ -123,10 +123,11 @@ class BackendHttpClient {
     startPracticeRun(practiceListId: string, configuration: PracticeRunConfiguration): Promise<PracticeRun> {
         const requestOptions = {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },            
             body: JSON.stringify(configuration)
         };
         
-        let url: string = `${config.backendBaseUrl}runs/${practiceListId}/start`;
+        let url: string = `${config.backendBaseUrl}lists/${practiceListId}/start`;
         return this.makePracticeRunHttpRequest(url, requestOptions)
             .then((responseJson) => {
                 let practiceRun: PracticeRun = PracticeRun.from(responseJson);
@@ -163,7 +164,7 @@ class BackendHttpClient {
     }
 
     makeHttpRequest(url: string, requestOptions: any): Promise<any> {
-        console.log(`Making HTTP request to url ${url}`);
+        console.log(`Making HTTP ${requestOptions.method} request to url ${url}`);
         return fetch(url, requestOptions)
             .then(async httpReponse => {
                 if (httpReponse.status === 201 || httpReponse.status === 200 

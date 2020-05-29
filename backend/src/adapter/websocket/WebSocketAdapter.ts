@@ -40,7 +40,6 @@ export class WebSocketAdapter implements OnGatewayInit, OnGatewayConnection, OnG
 
     @Cron(CronExpression.EVERY_10_SECONDS)
     private sendHeartBeat() {
-        this.logger.log("Sending socket IO heartbeat after 10 seconds.");
         this.server.emit("heartbeats", {});
     }
 
