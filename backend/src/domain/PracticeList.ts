@@ -32,6 +32,9 @@ export class PracticeList implements AbstractEntity<string> {
     @Transform(language => language.iso2Code)
     target: Language;
 
+    @Column()
+    runsCount: number;
+
     getID(): string {
         return this.id;
     }
@@ -42,6 +45,7 @@ export class PracticeList implements AbstractEntity<string> {
         practiceList.source = sourceLanguage;
         practiceList.target = targetLanguage;
         practiceList.translations = [];
+        practiceList.runsCount = 0;
         return practiceList;
     }
 }

@@ -3,6 +3,7 @@ import config from "../config/config.json";
 import { Language } from "../domain/Language";
 import { PracticeRunConfiguration } from "../domain/PracticeRunConfiguration";
 import { PracticeRun } from "../domain/PracticeRun";
+import { TranslationAttempt } from "../domain/TranslationAttempt";
 
 class BackendHttpClient {
 
@@ -154,6 +155,18 @@ class BackendHttpClient {
             .then(responseJson => PracticeRun.from(responseJson));
     }
 
+    giveAnswer(answer: string, runId: string): Promise<TranslationAttempt | null> {
+        const requestOptions = {
+            method: 'PUT',
+            body: JSON.stringify({
+                "answer": answer
+            })
+        };
+
+        let url: string = `${config.backendBaseUrl}runs/${runId}/giveAnswer`;
+        return this.makeHttpRequest(url, requestOptions)
+            .then(responseJson => TranslationAttempt.from(responseJson));
+    }
 
     makePracticeRunHttpRequest(url: string, requestOptions: any): Promise<PracticeRun> {
         return this.makeHttpRequest(url, requestOptions)

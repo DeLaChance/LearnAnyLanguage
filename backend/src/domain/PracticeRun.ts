@@ -3,7 +3,7 @@ import { Optional } from "typescript-optional";
 import { AbstractEntity } from "./AbstractEntity";
 import { TranslationAttempt } from "./TranslationAttempt";
 import { CreatePracticeRunCommand } from "./commands/CreatePracticeRunCommand";
-import { Transform } from "class-transformer";
+import { Transform, Expose } from "class-transformer";
 
 /**
  * A {@link PracticeRun} is an assessment of all {@link Translation}'s (word pairs) in a {@link PracticeList}.
@@ -21,21 +21,31 @@ export class PracticeRun implements AbstractEntity<string> {
     @UpdateDateColumn()
     lastActionDate: Date;
 
-    @Column({ nullable: false})
+    @Column()
     listId: string;
 
-    @Column('text', { nullable: false})
+    @Column('text')
     status: Status;
 
     @Column({ nullable: false })
     timePerWord: number;
 
-    @Column()
+    @Column({nullable: true})
     sourceToTarget: boolean;
 
     @OneToMany(type => TranslationAttempt, attempt => attempt.practiceRun, { eager: true })
     @JoinColumn()
     translationAttempts: TranslationAttempt[];
+
+    @Expose()
+    currentTranslation(): TranslationAttempt | null {
+        const optional: Optional<TranslationAttempt> = this.fetchFirstUnanswered();
+        if (optional.isPresent()) {
+            return optional.get();
+        } else {
+            return null;
+        }
+    }
 
     getID(): string {
         return this.id;

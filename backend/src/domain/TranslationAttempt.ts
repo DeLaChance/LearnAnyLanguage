@@ -14,6 +14,7 @@ export class TranslationAttempt implements AbstractEntity<string> {
     id: string;
 
     @ManyToOne(type => Translation, translation => translation.translationAttempts, { eager: true })
+    @Exclude()
     translation: Translation;
 
     @Column({ nullable: true })

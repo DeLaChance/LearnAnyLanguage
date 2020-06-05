@@ -2,9 +2,10 @@
 
 ## TODO-list
 - Test execution
+- Final touch
 - Make it in a docker container + start scripts
-
-- Code cleanup 
+- React issues
+- Code cleanup + refactor 
 - Demo video on Youtube
 
 ## Inspiration

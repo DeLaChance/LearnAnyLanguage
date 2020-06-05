@@ -16,9 +16,13 @@ export class PracticeRun {
     status: Status;
     translationAttempts: TranslationAttempt[];
     listId: string;
+    timePerWord: number;
+    sourceToTarget: boolean;
+    currentTranslation: TranslationAttempt | null;
 
     constructor(id: string, startDate: Date, lastActionDate: Date, status: Status, 
-        translationAttempts: TranslationAttempt[], listId: string) {
+        translationAttempts: TranslationAttempt[], listId: string, timePerWord: number,
+        currentTranslation: TranslationAttempt | null, sourceToTarget: boolean) {
 
         this.id = id;
         this.startDate = startDate;
@@ -26,6 +30,9 @@ export class PracticeRun {
         this.status = status;
         this.translationAttempts = translationAttempts;
         this.listId = listId;
+        this.timePerWord = timePerWord;
+        this.sourceToTarget = sourceToTarget;
+        this.currentTranslation = currentTranslation;
     }
 
     determineProgressCount(): number {
@@ -61,7 +68,10 @@ export class PracticeRun {
             new Date(practiceRunJson.lastActionDate), 
             this.mapValueToStatus(practiceRunJson.status),             
             TranslationAttempt.fromMany(practiceRunJson.translationAttempts),
-            practiceRunJson.listId
+            practiceRunJson.listId,
+            practiceRunJson.timePerWord,
+            TranslationAttempt.from(practiceRunJson.currentTranslation),
+            practiceRunJson.sourceToTarget
         );
     }
 

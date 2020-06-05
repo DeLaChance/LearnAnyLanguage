@@ -50,6 +50,9 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         // TODO: can this be done in one save-action?
         practiceRun = await this.repo.save(practiceRun);
 
+        practiceList.runsCount += 1;
+        practiceList = await this.practiceListRepo.save(practiceList);
+
         Logger.log(`Created a practice run '${practiceRun.id}' for practice list '${practiceList.id}'`);
         this.publishPracticeRunCreatedEvent(practiceRun.id);
 

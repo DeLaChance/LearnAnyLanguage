@@ -125,7 +125,8 @@ export default function StartPracticeRunPage() {
             let configuration: PracticeRunConfiguration = new PracticeRunConfiguration(practiceList.id, timePerWord, 
                 testDirection === TestDirection.SOURCE_TO_TARGET);
             backendClient.startPracticeRun(practiceList.id, configuration)
-                .then(practiceRun => redirect(`/runs/${practiceRun.id}`));
+                .then(practiceRun => redirect(`/runs/active/${practiceRun.id}`));
+            // TODO: display an error here in a pop-up message
         };
 
         return (

@@ -14,6 +14,7 @@ import PracticeListPage from './lists/PracticeListPage';
 import StartPracticeRunPage from './runs/StartPracticeRunPage';
 import RunsPage from './runs/RunsPage';
 import RunPage from './runs/RunPage';
+import ActiveRunPage from './runs/ActiveRunPage';
 
 export default class App extends React.Component {
     render() {
@@ -36,6 +37,9 @@ export default class App extends React.Component {
                         <Route path="/runs/:_practiceListId/start">
                             <StartPracticeRunPage />
                         </Route>                            
+                        <Route path="/runs/active/:runId">
+                            <ActiveRunPage />
+                        </Route>
                         <Route path="/runs/:runId">
                             <RunPage />
                         </Route>        

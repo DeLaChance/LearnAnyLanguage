@@ -69,8 +69,7 @@ export default function RunsPage() {
     const useStyles = makeStyles((theme: Theme) =>
         createStyles({
             root: {                
-                backgroundColor: theme.palette.background.paper,
-              
+                backgroundColor: theme.palette.background.paper              
             },
             list: {
                 margin: 'auto'
