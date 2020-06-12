@@ -29,7 +29,6 @@ import { HttpResponseInterceptor } from "./HttpResponseInterceptor";
     }
 
     @Put(":runId/giveAnswer")
-    @Header('Content-Type', 'application/json')
     giveAnswer(@Param("runId") runId: string, @Body() answerDto: AnswerDto): Promise<TranslationAttempt> {
         return this.service.giveAnswer(runId, answerDto.answer);
     }    

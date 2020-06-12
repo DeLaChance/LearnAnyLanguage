@@ -16,6 +16,7 @@ import { PracticeRun, Status } from '../domain/PracticeRun';
 import { Translation } from '../domain/Translation';
 import { TranslationAttempt } from '../domain/TranslationAttempt';
 import { WebSocketAdapter } from "../adapter/websocket/WebSocketAdapter";
+import { PracticeRunAnswerCreatedEvent } from "../domain/events/PracticeRunAnswerCreatedEvent";
 
 const NOTIFICATION_FREQUENCY_MILLIS: number = 100;
 const MILLIS_PER_SECOND: number = 1000;
@@ -184,12 +185,21 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
     }
 
     scheduleNextAnswerTimeout(runId: string) {
-        const timeout = setTimeout(() => this.scheduleNextAnswerTimeOut(runId), TIME_BETWEEN_ANSWERS_MILLIS);        
+        const callback: (() => void) = () => {
+            this.scheduleNextAnswerTimeOut(runId);
+        };
+        const timeout = setTimeout(callback, TIME_BETWEEN_ANSWERS_MILLIS);        
         this.schedulerRegistry.addTimeout(runId, timeout);
     }    
 
     private publishPracticeRunCreatedEvent(runId: string) {
         let event: PracticeRunCreatedEvent = new PracticeRunCreatedEvent();        
+        event.runId = runId;
+        this.eventBus.publish(event);
+    }
+
+    private publishPracticeRunAnswerCreatedEvent(runId: string) {
+        let event: PracticeRunAnswerCreatedEvent = new PracticeRunAnswerCreatedEvent();
         event.runId = runId;
         this.eventBus.publish(event);
     }
@@ -205,7 +215,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         event.runId = runId;
         this.eventBus.publish(event);
     }
-
+    
     private publishPracticeRunStoppedEvent(runId: string, newState: Status) {
         let event: PracticeRunStoppedEvent = new PracticeRunStoppedEvent();
         event.runId = runId;
@@ -263,6 +273,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         this.schedulerRegistry.addInterval(runId, intervalId);
 
         Logger.log(`Scheduling answer timeout for run='${runId}' in ${timeOutInMillis}ms.`);
+        this.publishPracticeRunAnswerCreatedEvent(runId);
     }
 
     private sendRunningTestNotification(runId: string, timeSpentOnCurrentWord: number) {

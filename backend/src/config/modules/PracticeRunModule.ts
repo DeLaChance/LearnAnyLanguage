@@ -13,9 +13,11 @@ import { PracticeRunPausedEventHandler } from "../../service/events/PracticeRunP
 import { PracticeRunStoppedEventHandler } from "../../service/events/PracticeRunStoppedEventHandler";
 import { PracticeRunRestartedEventHandler } from "../../service/events/PracticeRunRestartedEventHandler";
 import { WebSocketAdapter } from "../../adapter/websocket/WebSocketAdapter";
+import { PracticeRunAnswerCreatedEventHandler } from "../../service/events/PracticeRunAnswerCreatedEventHandler";
 
 export const commandHandlers = [ ];
 export const eventHandlers = [ 
+  PracticeRunAnswerCreatedEventHandler,
   PracticeRunAnswerGivenEventHandler, 
   PracticeRunAnswerTimedOutEventHandler,
   PracticeRunCreatedEventHandler,

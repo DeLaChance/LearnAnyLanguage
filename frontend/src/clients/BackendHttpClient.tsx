@@ -158,6 +158,7 @@ class BackendHttpClient {
     giveAnswer(answer: string, runId: string): Promise<TranslationAttempt | null> {
         const requestOptions = {
             method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },       
             body: JSON.stringify({
                 "answer": answer
             })

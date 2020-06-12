@@ -5,21 +5,21 @@ import io from 'socket.io-client';
 class BackendWebSocketClient {
 
     private websocket: WebSocket;
-    private subscribers: ((data: any) => void)[];
-    private notificationSubscribers: ((notification: any) => void)[];
+    private subscribers: Map<string, ((data: any) => void)>;
+    private notificationSubscribers: Map<string, ((data: any) => void)>;
 
     constructor() {
         this.initialize();
-        this.subscribers = [];
-        this.notificationSubscribers = [];
+        this.subscribers = new Map();
+        this.notificationSubscribers = new Map();;
     }
 
-    public subscribeToEvents(dataCallback: ((data: any) => void)) {
-        this.subscribers.push(dataCallback);
+    public subscribeToEvents(name: string, dataCallback: ((data: any) => void)) {
+        this.subscribers.set(name, dataCallback);
     }
 
-    public subscribeToNotifications(dataCallback: ((notification: any) => void)) {
-        this.notificationSubscribers.push(dataCallback);
+    public subscribeToNotifications(name: string, dataCallback: ((notification: any) => void)) {
+        this.notificationSubscribers.set(name, dataCallback);
     }
 
     private initialize() {
@@ -45,7 +45,12 @@ class BackendWebSocketClient {
 
     private handleEvent(event: any) {
         console.log(`Websocket received event: ${JSON.stringify(event)}.`);
-        this.subscribers.forEach(subscriber => subscriber(event));
+        Array.from(this.subscribers.keys()).forEach((name: string) =>  {
+            const callback: ((data: any) => void) | undefined = this.subscribers.get(name);
+            if (callback) {
+                callback(event);
+            }
+        });
     }
 
     private logHeartBeat() {
@@ -53,7 +58,12 @@ class BackendWebSocketClient {
     }
 
     private handleNotifications(notification: any) {
-        this.notificationSubscribers.forEach(subscriber => subscriber(notification));
+        Array.from(this.notificationSubscribers.keys()).forEach((name: string) =>  {
+            const callback: ((data: any) => void) | undefined = this.notificationSubscribers.get(name);
+            if (callback) {
+                callback(notification);
+            }
+        });
     }
 
 }

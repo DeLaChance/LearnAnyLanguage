@@ -34,7 +34,7 @@ export class WebSocketAdapter implements OnGatewayInit, OnGatewayConnection, OnG
     }
 
     sendEvent(event: any) {
-        this.logger.log(`Sending event ${event} over socket.io`);
+        this.logger.log(`Sending event ${JSON.stringify(event)} over socket.io`);
         this.server.emit('events', event);
     }
 

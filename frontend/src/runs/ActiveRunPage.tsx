@@ -94,11 +94,6 @@ export default function ActiveRunPage() {
         }
     };
 
-    const resetState = () => {
-        setProgress(0.0);
-        setAnswer("");
-    };
-
     // Similar to componentDidMount, componentDidUpdate and componentDidUpdate.
     useEffect(() => {
         if (runId) {
@@ -107,12 +102,36 @@ export default function ActiveRunPage() {
     }, []); 
 
     useEffect(() => {        
-        websocketClient.subscribeToEvents(handleEvent);
-        websocketClient.subscribeToNotifications(handleNotification);
+        websocketClient.subscribeToEvents("ActiveRunPage", handleEvent);
+        websocketClient.subscribeToNotifications("ActiveRunPage", handleNotification);
     }, [practiceRun])
 
     const handleEvent = (event: any) => {
+        console.log(`Handling event ${JSON.stringify(event)}.`)
+        if (runId === event.runId && practiceRun && practiceRun.currentTranslation) {
+            const name: string = event.name;
+            if (name === "PracticeRunAnswerCreatedEvent") {
+                resetState(practiceRun.id);
+            } else if (name === "PracticeRunAnswerTimedOutEvent") {
+                console.log("Current answer has timed out.");
+                setAnswerIsGivenOrTimeout(true);
+                setCorrectAnswerIsGiven(false);
+            } else if (name === "PracticeRunAnswerGivenEvent") {
+                console.log("Answer was given.");
+                setAnswerIsGivenOrTimeout(true);
+                setCorrectAnswerIsGiven(answer === practiceRun.currentTranslation.correctAnswer);
+            }
+        }
+    };
 
+    const resetState = (runId: string) => {
+        console.log("Setting up for the next answer.");
+
+        setProgress(0.0);
+        setAnswer("");
+
+        // TODO: could be done more efficiently than reloading entire practice run.
+        backendClient.fetchPracticeRun(runId).then(run => setPracticeRun(run));
     };
 
     const handleNotification = (notification: any) => {
@@ -146,18 +165,24 @@ export default function ActiveRunPage() {
             selectedClassName = classes.textField;
         }
 
+        const handleTextFieldChange = (event: any) => {
+            setAnswer(event.target.value);
+        };
+
         return (
-            <TextField error={correctAnswerIsgiven} className={answerIsGivenOrTimeout ? classes.textFieldSuccess : classes.textFieldError} id="filled-basic" label="Submit answer..." variant="outlined" />        
+            <TextField error={correctAnswerIsgiven} className={answerIsGivenOrTimeout ? classes.textFieldSuccess : classes.textFieldError} 
+                id="filled-basic" label="Submit answer..." variant="outlined" value={answer} onChange={handleTextFieldChange} 
+            />        
+            
         );
     }
 
     const sendAnswer = () => {
+        console.log(`Submitting ${answer}.`);
         if (answer && runId) {
             backendClient.giveAnswer(answer, runId)
                 .then(translationAttempt => {
                     if (translationAttempt) {
-                        setAnswerIsGivenOrTimeout(true);
-                        setCorrectAnswerIsGiven(answer === translationAttempt.correctAnswer);
                         // Got 200 OK. So wait for event from backend to proceed.
                     }
                 })
