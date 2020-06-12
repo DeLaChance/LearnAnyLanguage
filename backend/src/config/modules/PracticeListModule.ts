@@ -1,20 +1,18 @@
 import { Module } from "@nestjs/common";
+import { CqrsModule } from "@nestjs/cqrs";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { PracticeListController } from "../../adapter/http/PracticeListController";
-import { PracticeList } from "../../domain/PracticeList";
-import { PracticeListService } from "../../service/practicelist/PracticeListService";
-import { PracticeListFileImporter } from "../../service/practicelist/PracticeListFileImporter";
-import { Translation } from "../../domain/Translation";
-import { Word } from "../../domain/Word";
 import { Language } from "../../domain/Language";
-import { PracticeRunService } from "../../service/PracticeRunService";
+import { PracticeList } from "../../domain/PracticeList";
 import { PracticeRun } from "../../domain/PracticeRun";
+import { Translation } from "../../domain/Translation";
 import { TranslationAttempt } from "../../domain/TranslationAttempt";
-import { CqrsModule } from "@nestjs/cqrs";
+import { Word } from "../../domain/Word";
 import { CreatePracticeRunCommandHandler } from "../../service/commands/CreatePracticeRunCommandHandler";
-import { PracticeRunAnswerGivenEventHandler } from "../../service/events/PracticeRunAnswerGivenEventHandler";
-import { PracticeRunAnswerTimedOutEventHandler } from "../../service/events/PracticeRunAnswerTimedOutEventHandler";
-import { PracticeRunCreatedEventHandler } from "../../service/events/PracticeRunCreatedEventHandler";
+import { PracticeListFileImporter } from "../../service/practicelist/PracticeListFileImporter";
+import { PracticeListService } from "../../service/practicelist/PracticeListService";
+import { PracticeRunService } from "../../service/PracticeRunService";
+import { WebSocketAdapter } from "../../adapter/websocket/WebSocketAdapter";
 
 export const commandHandlers = [ CreatePracticeRunCommandHandler ];
 export const eventHandlers = [];
@@ -35,11 +33,13 @@ export const eventHandlers = [];
     PracticeListService, 
     PracticeListFileImporter, 
     PracticeRunService, 
+    WebSocketAdapter,
     ...commandHandlers, 
     ...eventHandlers
   ],
   exports: [
-    PracticeListService
+    PracticeListService,
+    WebSocketAdapter
   ],
   controllers: [
     PracticeListController

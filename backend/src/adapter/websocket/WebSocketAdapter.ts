@@ -38,6 +38,15 @@ export class WebSocketAdapter implements OnGatewayInit, OnGatewayConnection, OnG
         this.server.emit('events', event);
     }
 
+    sendNotification(runId: string, timeSpentOnCurrentWord: number) {
+        const notification: any = {
+            "runId": runId, 
+            "timeSpentOnCurrentWord": timeSpentOnCurrentWord
+        };
+        this.logger.log(`Sending notification ${JSON.stringify(notification)} over socket.io`);
+        this.server.emit('notifications', notification);
+    }
+
     @Cron(CronExpression.EVERY_10_SECONDS)
     private sendHeartBeat() {
         this.server.emit("heartbeats", {});

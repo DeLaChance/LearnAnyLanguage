@@ -6,6 +6,7 @@ import { PracticeRun } from "../domain/PracticeRun";
 import { PracticeList } from "../domain/PracticeList";
 import LanguageAvatar from "../languages/LanguageAvatar";
 import { Language } from "../domain/Language";
+import websocketClient from '../clients/BackendWebSocketClient';
 
 const LINEAR_PROGRESS_RATE: number = 100;
 
@@ -18,6 +19,8 @@ export default function ActiveRunPage() {
 
     const [progress, setProgress] = useState<number>(0.0);
     const [answer, setAnswer] = useState<string>("");
+    const [answerIsGivenOrTimeout, setAnswerIsGivenOrTimeout] = useState<boolean>(false);
+    const [correctAnswerIsgiven, setCorrectAnswerIsGiven] = useState<boolean>(false);
 
     let { runId } = useParams();
 
@@ -27,6 +30,7 @@ export default function ActiveRunPage() {
                 '& > *': {
                     margin: theme.spacing(1),
                 },
+                               
                 flexGrow: 1
             },
             paper: {
@@ -42,6 +46,20 @@ export default function ActiveRunPage() {
                 marginTop: theme.spacing(2),
             },
             textField: {
+                marginLeft: theme.spacing(1),
+                marginRight: theme.spacing(1),
+                width: '90ch'                
+            },
+            textFieldSuccess: {
+                borderColor: 'green',
+                borderWidth: 2,
+                marginLeft: theme.spacing(1),
+                marginRight: theme.spacing(1),
+                width: '90ch'                
+            },
+            textFieldError: {
+                borderColor: 'red',
+                borderWidth: 2,
                 marginLeft: theme.spacing(1),
                 marginRight: theme.spacing(1),
                 width: '90ch'
@@ -74,8 +92,6 @@ export default function ActiveRunPage() {
             setSourceLanguage(targetLanguage);
             setTargetLanguage(sourceLanguage);
         }
-
-        startProgressTimer(run.timePerWord * 1000.0);
     };
 
     const resetState = () => {
@@ -83,23 +99,30 @@ export default function ActiveRunPage() {
         setAnswer("");
     };
 
-    const startProgressTimer = (timePerWordMillis: number) => {
-        const timer = setInterval(() => {
-            setProgress((oldProgress: number) => {
-                const newProgress: number = oldProgress + (LINEAR_PROGRESS_RATE / timePerWordMillis) * 100.0;
-                return Math.min(100, newProgress);
-            });
-        }, LINEAR_PROGRESS_RATE); 
-
-        resetState();
-    }
-
-    // Similar to componentDidMount and componentDidUpdate:
+    // Similar to componentDidMount, componentDidUpdate and componentDidUpdate.
     useEffect(() => {
         if (runId) {
             fetchAllRequiredData(runId);
         }
     }, []); 
+
+    useEffect(() => {        
+        websocketClient.subscribeToEvents(handleEvent);
+        websocketClient.subscribeToNotifications(handleNotification);
+    }, [practiceRun])
+
+    const handleEvent = (event: any) => {
+
+    };
+
+    const handleNotification = (notification: any) => {
+        if (runId === notification.runId && practiceRun) {
+            const timeSpentOnCurrentWord: number = notification.timeSpentOnCurrentWord;
+            const newProgress: number = Math.min(100.0, (timeSpentOnCurrentWord / (practiceRun.timePerWord * 1000)) * 100.0);
+            console.log(`${runId}, ${notification.runId}, ${newProgress}`);
+            setProgress(newProgress);
+        }
+    }
 
     const generateLinearProgressBar = () => {
         return (
@@ -111,12 +134,32 @@ export default function ActiveRunPage() {
         );
     };
 
+    const generateTextField = () => {
+
+        let selectedClassName: any;
+        if (answerIsGivenOrTimeout) {
+            if (correctAnswerIsgiven) {
+                selectedClassName = classes.textFieldSuccess;
+            } else {
+                selectedClassName = classes.textFieldError;
+            }
+        } else {
+            selectedClassName = classes.textField;
+        }
+
+        return (
+            <TextField error={correctAnswerIsgiven} className={answerIsGivenOrTimeout ? classes.textFieldSuccess : classes.textFieldError} id="filled-basic" label="Submit answer..." variant="outlined" />        
+        );
+    }
+
     const sendAnswer = () => {
         if (answer && runId) {
             backendClient.giveAnswer(answer, runId)
                 .then(translationAttempt => {
                     if (translationAttempt) {
-
+                        setAnswerIsGivenOrTimeout(true);
+                        setCorrectAnswerIsGiven(answer === translationAttempt.correctAnswer);
+                        // Got 200 OK. So wait for event from backend to proceed.
                     }
                 })
                 .catch(error => {
@@ -126,7 +169,6 @@ export default function ActiveRunPage() {
     };
 
     if (practiceRun && practiceList && sourceLanguage && targetLanguage) {
-
         const currentTranslation: string = practiceRun.currentTranslation ? 
             practiceRun.currentTranslation.input : "Chicken";
         const runTitle: string = `Run #${practiceList.runsCount} of ${practiceList.name}`;
@@ -153,7 +195,7 @@ export default function ActiveRunPage() {
                     </Grid>
                     <Grid item sm={12}>
                         <form className={classes.root} noValidate autoComplete="off">
-                            <TextField className={classes.textField} id="filled-basic" label="Submit answer..." variant="outlined" />
+                            {generateTextField()}
                             <Button className={classes.button} variant="outlined" color="inherit" onClick={(e) => sendAnswer()}>
                                 Send
                             </Button>

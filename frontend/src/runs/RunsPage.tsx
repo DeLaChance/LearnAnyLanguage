@@ -32,7 +32,7 @@ export default function RunsPage() {
                 setRuns(runs);
             });
 
-        websocketClient.subscribe(handleWebsocketData);
+        websocketClient.subscribeToEvents(handleWebsocketData);
     }, []); 
 
     const handleWebsocketData = (event: any) => {

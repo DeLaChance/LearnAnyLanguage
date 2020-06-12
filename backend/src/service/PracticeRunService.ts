@@ -1,21 +1,24 @@
-import { PracticeRun, Status } from '../domain/PracticeRun';
-import { Injectable, Post, Logger, Inject } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import { EventBus } from '@nestjs/cqrs';
+import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TypeOrmCrudService } from "@nestjsx/crud-typeorm";
-import { SchedulerRegistry } from "@nestjs/schedule"
 import { Repository } from 'typeorm';
-import { PracticeList } from '../domain/PracticeList';
-import { TranslationAttempt } from '../domain/TranslationAttempt';
-import { Translation } from '../domain/Translation';
 import { Optional } from 'typescript-optional';
-import { EventBus } from '@nestjs/cqrs';
-import { PracticeRunCreatedEvent } from '../domain/events/PracticeRunCreatedEvent';
+import { CreatePracticeRunCommand } from '../domain/commands/CreatePracticeRunCommand';
 import { PracticeRunAnswerGivenEvent } from '../domain/events/PracticeRunAnswerGivenEvent';
 import { PracticeRunAnswerTimedOutEvent } from '../domain/events/PracticeRunAnswerTimedOutEvent';
-import { PracticeRunStoppedEvent } from '../domain/events/PracticeRunStoppedEvent';
-import e from 'express';
+import { PracticeRunCreatedEvent } from '../domain/events/PracticeRunCreatedEvent';
 import { PracticeRunRestartedEvent } from '../domain/events/PracticeRunRestartedEvent';
-import { CreatePracticeRunCommand } from '../domain/commands/CreatePracticeRunCommand';
+import { PracticeRunStoppedEvent } from '../domain/events/PracticeRunStoppedEvent';
+import { PracticeList } from '../domain/PracticeList';
+import { PracticeRun, Status } from '../domain/PracticeRun';
+import { Translation } from '../domain/Translation';
+import { TranslationAttempt } from '../domain/TranslationAttempt';
+import { WebSocketAdapter } from "../adapter/websocket/WebSocketAdapter";
+
+const NOTIFICATION_FREQUENCY_MILLIS: number = 100;
+const MILLIS_PER_SECOND: number = 1000;
 
 @Injectable()
 export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
@@ -28,6 +31,9 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
 
     @Inject()
     eventBus: EventBus;
+
+    @Inject()
+    websocketAdapter: WebSocketAdapter;
 
     @Inject()
     schedulerRegistry: SchedulerRegistry;
@@ -226,17 +232,34 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
     }
 
     private cancelExistingTimeOut(runId: string) {
-        this.schedulerRegistry.deleteTimeout(runId);
+        this.schedulerRegistry.deleteInterval(runId);
     }
 
     private async scheduleNextAnswerTimeOut(runId: string) {
-        const callback = () => this.timeOutAnswer(runId);
+        const generateIntervalCallback = (timeOutInMillis: number) => {
+            let timeSpentOnCurrentWord: number = 0;
+            return () => {
+                timeSpentOnCurrentWord += NOTIFICATION_FREQUENCY_MILLIS;
+                if (timeSpentOnCurrentWord >= timeOutInMillis) {
+                    this.timeOutAnswer(runId);
+                } else {
+                    this.sendRunningTestNotification(runId, timeSpentOnCurrentWord);
+                }
+            }
+        };
 
         let practiceRun: PracticeRun = await this.repo.findOneOrFail(runId);
-        const timeOutInMillis = practiceRun.timePerWord * 1000;
-        const timeout = setTimeout(callback, timeOutInMillis);
-        this.schedulerRegistry.addTimeout(runId, timeout);
+        const timeOutInMillis = practiceRun.timePerWord * MILLIS_PER_SECOND;
+        
+        const callback: (() => void) = generateIntervalCallback(timeOutInMillis);
+        const intervalId = setInterval(callback, NOTIFICATION_FREQUENCY_MILLIS);
+        this.schedulerRegistry.addInterval(runId, intervalId);
+
         Logger.log(`Scheduling answer timeout for run='${runId}' in ${timeOutInMillis}ms.`);
+    }
+
+    private sendRunningTestNotification(runId: string, timeSpentOnCurrentWord: number) {
+        this.websocketAdapter.sendNotification(runId, timeSpentOnCurrentWord);
     }
 
     private shuffle(array: any[]): any[] {
