@@ -43,7 +43,6 @@ export class WebSocketAdapter implements OnGatewayInit, OnGatewayConnection, OnG
             "runId": runId, 
             "timeSpentOnCurrentWord": timeSpentOnCurrentWord
         };
-        this.logger.log(`Sending notification ${JSON.stringify(notification)} over socket.io`);
         this.server.emit('notifications', notification);
     }
 

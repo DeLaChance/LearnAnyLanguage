@@ -119,7 +119,6 @@ export default function ActiveRunPage() {
         if (runId === notification.runId && practiceRun) {
             const timeSpentOnCurrentWord: number = notification.timeSpentOnCurrentWord;
             const newProgress: number = Math.min(100.0, (timeSpentOnCurrentWord / (practiceRun.timePerWord * 1000)) * 100.0);
-            console.log(`${runId}, ${notification.runId}, ${newProgress}`);
             setProgress(newProgress);
         }
     }

@@ -19,6 +19,7 @@ import { WebSocketAdapter } from "../adapter/websocket/WebSocketAdapter";
 
 const NOTIFICATION_FREQUENCY_MILLIS: number = 100;
 const MILLIS_PER_SECOND: number = 1000;
+const TIME_BETWEEN_ANSWERS_MILLIS: number = 2000;
 
 @Injectable()
 export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
@@ -154,10 +155,6 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         return promise;
     }
 
-    scheduleNextAnswerTimeout(runId: string) {
-        this.scheduleNextAnswerTimeOut(runId);
-    }    
-
     async timeOutAnswer(runId: string): Promise<TranslationAttempt> {
         let practiceRun: PracticeRun = await this.repo.findOneOrFail(runId);
         
@@ -185,6 +182,11 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
 
         return promise;
     }
+
+    scheduleNextAnswerTimeout(runId: string) {
+        const timeout = setTimeout(() => this.scheduleNextAnswerTimeOut(runId), TIME_BETWEEN_ANSWERS_MILLIS);        
+        this.schedulerRegistry.addTimeout(runId, timeout);
+    }    
 
     private publishPracticeRunCreatedEvent(runId: string) {
         let event: PracticeRunCreatedEvent = new PracticeRunCreatedEvent();        
@@ -247,6 +249,11 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
                 }
             }
         };
+
+        const betweenAnswersTimeout: any = this.schedulerRegistry.getTimeout(runId)
+        if (betweenAnswersTimeout) {
+            this.schedulerRegistry.deleteTimeout(runId);
+        }
 
         let practiceRun: PracticeRun = await this.repo.findOneOrFail(runId);
         const timeOutInMillis = practiceRun.timePerWord * MILLIS_PER_SECOND;

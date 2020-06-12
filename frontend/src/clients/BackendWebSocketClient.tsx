@@ -53,7 +53,6 @@ class BackendWebSocketClient {
     }
 
     private handleNotifications(notification: any) {
-        console.log(`Notification received: ${JSON.stringify(notification)}.`);
         this.notificationSubscribers.forEach(subscriber => subscriber(notification));
     }
 
