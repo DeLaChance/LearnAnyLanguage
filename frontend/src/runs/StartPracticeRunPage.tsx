@@ -117,6 +117,7 @@ export default function StartPracticeRunPage() {
                     <MenuItem key={10} value={10}>10</MenuItem>
                     <MenuItem key={15} value={15}>15</MenuItem>
                     <MenuItem key={20} value={20}>20</MenuItem>
+                    <MenuItem key={30} value={30}>30</MenuItem>
                 </Select>
             </FormControl>
         );

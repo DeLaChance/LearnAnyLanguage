@@ -7,6 +7,10 @@ import { PracticeList } from "../domain/PracticeList";
 import LanguageAvatar from "../languages/LanguageAvatar";
 import { Language } from "../domain/Language";
 import websocketClient from '../clients/BackendWebSocketClient';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import StopIcon from '@material-ui/icons/Stop';
+import PauseIcon from '@material-ui/icons/Pause';
+import { IconButton } from '@material-ui/core';
 
 const LINEAR_PROGRESS_RATE: number = 100;
 
@@ -120,6 +124,8 @@ export default function ActiveRunPage() {
                 console.log("Answer was given.");
                 setAnswerIsGivenOrTimeout(true);
                 setCorrectAnswerIsGiven(answer === practiceRun.currentTranslation.correctAnswer);
+            } else if (name === "PracticeRunPausedEvent" || name === "PracticeRunStoppedEvent" || name === "PracticeRunRestartedEvent") {
+                resetState(practiceRun.id);
             }
         }
     };
@@ -145,14 +151,14 @@ export default function ActiveRunPage() {
     const generateLinearProgressBar = () => {
         return (
             <div className={classes.linearProgress}>
-                <Tooltip title={"a"}>
+                <Tooltip title={"Time till timeout."}>
                     <LinearProgress variant="determinate" value={progress} color="secondary"/>
                 </Tooltip>
             </div>
         );
     };
 
-    const generateTextField = () => {
+    const generateTextField = (practiceRun: PracticeRun) => {
 
         let selectedClassName: any;
         if (answerIsGivenOrTimeout) {
@@ -172,6 +178,7 @@ export default function ActiveRunPage() {
         return (
             <TextField error={correctAnswerIsgiven} className={answerIsGivenOrTimeout ? classes.textFieldSuccess : classes.textFieldError} 
                 id="filled-basic" label="Submit answer..." variant="outlined" value={answer} onChange={handleTextFieldChange} 
+                disabled={!practiceRun.isActive()}
             />        
             
         );
@@ -192,12 +199,59 @@ export default function ActiveRunPage() {
         }
     };
 
-    if (practiceRun && practiceList && sourceLanguage && targetLanguage) {
-        const currentTranslation: string = practiceRun.currentTranslation ? 
-            practiceRun.currentTranslation.input : "Chicken";
-        const runTitle: string = `Run #${practiceList.runsCount} of ${practiceList.name}`;
-        const inputWordDescription: string = `Translate "${currentTranslation}" from ${sourceLanguage.name} to ${targetLanguage.name}`;
+    const generateActivityChangeButtons = (practiceRun: PracticeRun) => {
+        let buttons: any = [];
 
+        let pauseButton: any = 
+            <IconButton edge="end" aria-label="Pause">
+                <Tooltip title="Pause" onClick={(e) => backendClient.pauseRun(practiceRun.id)}>
+                    <PauseIcon />
+                </Tooltip>
+            </IconButton>  
+        ;
+
+        let stopButton: any = 
+            <IconButton edge="end" aria-label="Stop">
+                <Tooltip title="Stop" onClick={(e) => backendClient.abortRun(practiceRun.id)}>
+                    <StopIcon/>
+                </Tooltip>
+            </IconButton>
+        ;
+
+        let playButton: any = 
+            <IconButton edge="end" aria-label="Play">
+                <Tooltip title="Play" onClick={(e) => backendClient.restart(practiceRun.id)}>
+                    <PlayArrowIcon />
+                </Tooltip>
+            </IconButton>          
+        ;   
+
+        if (practiceRun.isActive()) {
+            buttons = [ pauseButton, stopButton ];
+        } else if (practiceRun.isPaused()) {
+            buttons = [ playButton, stopButton ];
+        } else {
+            // Aborted or finished.
+        }
+
+        return buttons;
+    };
+
+    if (practiceRun && practiceList && sourceLanguage && targetLanguage) {
+        const runTitle: string = `Run #${practiceList.runsCount} of ${practiceList.name}`;
+
+        let inputWordDescription: string;
+        if (practiceRun.currentTranslation) {
+            if (practiceRun.isActive() || practiceRun.isPaused()) {
+                const currentTranslation: string = practiceRun.currentTranslation.input;
+                inputWordDescription = `Translate "${currentTranslation}" from ${sourceLanguage.name} to ${targetLanguage.name}`;
+            } else {
+                inputWordDescription = "Current practice run has been stopped.";    
+            }
+        } else {
+            inputWordDescription = "All words have been translated.";
+        }
+    
         return (
             <div className={classes.root}>
                 <Grid container spacing={3} direction='column' justify='space-evenly' alignItems='center'>       
@@ -219,8 +273,8 @@ export default function ActiveRunPage() {
                     </Grid>
                     <Grid item sm={12}>
                         <form className={classes.root} noValidate autoComplete="off">
-                            {generateTextField()}
-                            <Button className={classes.button} variant="outlined" color="inherit" onClick={(e) => sendAnswer()}>
+                            {generateTextField(practiceRun)}
+                            <Button className={classes.button} variant="outlined" color="inherit" onClick={(e) => sendAnswer()} disabled={!practiceRun.isActive()}>
                                 Send
                             </Button>
                         </form>
@@ -228,9 +282,13 @@ export default function ActiveRunPage() {
                     <Grid item sm={9}>
                         {generateLinearProgressBar()}
                     </Grid>
+                    <Grid item sm={9}>
+                        {generateActivityChangeButtons(practiceRun)}
+                    </Grid>
                 </Grid>
             </div>
         );
+        
     } else {
         return (
             <div className={classes.root}>

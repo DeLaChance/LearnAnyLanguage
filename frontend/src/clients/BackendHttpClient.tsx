@@ -169,6 +169,39 @@ class BackendHttpClient {
             .then(responseJson => TranslationAttempt.from(responseJson));
     }
 
+    pauseRun(runId: string) {
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        };
+
+        let url: string = `${config.backendBaseUrl}runs/${runId}/pause`;
+        return this.makeHttpRequest(url, requestOptions)
+            .then(responseJson => TranslationAttempt.from(responseJson));
+    }
+
+    abortRun(runId: string) {
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        };
+
+        let url: string = `${config.backendBaseUrl}runs/${runId}/abort`;
+        return this.makeHttpRequest(url, requestOptions)
+            .then(responseJson => TranslationAttempt.from(responseJson));
+    }
+
+    restart(runId: string) {
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        };
+
+        let url: string = `${config.backendBaseUrl}runs/${runId}/restart`;
+        return this.makeHttpRequest(url, requestOptions)
+            .then(responseJson => TranslationAttempt.from(responseJson));
+    }
+
     makePracticeRunHttpRequest(url: string, requestOptions: any): Promise<PracticeRun> {
         return this.makeHttpRequest(url, requestOptions)
             .then((responseJson) => {

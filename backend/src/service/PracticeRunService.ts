@@ -17,6 +17,7 @@ import { Translation } from '../domain/Translation';
 import { TranslationAttempt } from '../domain/TranslationAttempt';
 import { WebSocketAdapter } from "../adapter/websocket/WebSocketAdapter";
 import { PracticeRunAnswerCreatedEvent } from "../domain/events/PracticeRunAnswerCreatedEvent";
+import { PracticeRunPausedEvent } from "../domain/events/PracticeRunPausedEvent";
 
 const NOTIFICATION_FREQUENCY_MILLIS: number = 100;
 const MILLIS_PER_SECOND: number = 1000;
@@ -85,7 +86,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         practiceRun = await this.repo.save(practiceRun);
 
         Logger.log(`Paused practice run '${practiceRun.id}'`);
-        this.publishPracticeRunStoppedEvent(practiceRun.id, Status.PAUSED);
+        this.publishPracticeRunPausedEvent(practiceRun.id);
 
         return Promise.resolve(practiceRun);
     }
@@ -222,7 +223,13 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         event.newState = newState;
         this.eventBus.publish(event);
     }
-    
+
+    private publishPracticeRunPausedEvent(runId: string) {
+        let event: PracticeRunPausedEvent = new PracticeRunPausedEvent();
+        event.runId = runId;
+        this.eventBus.publish(event);
+    }
+
     private publishPracticeRunRestartedEvent(runId: string) {
         let event: PracticeRunRestartedEvent = new PracticeRunRestartedEvent();
         event.runId = runId;

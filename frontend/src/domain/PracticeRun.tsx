@@ -49,6 +49,18 @@ export class PracticeRun {
         return this.status === Status.RUNNING;
     }
 
+    isPaused() {
+        return this.status === Status.PAUSED;
+    }
+
+    isAborted() {
+        return this.status === Status.ABORTED;
+    }
+
+    isFinished() {
+        return this.status === Status.FINISHED;
+    }
+
     determineWrongAnswersCount(): number {
         return this.translationAttempts.filter(translationAttempt => translationAttempt.isWrong()).length;
     }
