@@ -40,5 +40,5 @@ function isJsonResponse(response) {
     return contentTypeHeaderValue != null && contentTypeHeaderValue.startsWith("application/json");
 }
 
-const PORT = process.env.PORT || 3100;
+const PORT = process.env.PORT || 8181;
 app.listen(PORT, () => console.log(`listening on ${PORT}`));

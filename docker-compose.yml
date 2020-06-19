@@ -1,16 +1,26 @@
 version: '3'
 services:
   db:
-    image: postgres
+    image: db:latest
     restart: always
     environment:
-      POSTGRES_USER: "postgres"
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports: 
         - 5432:5432
 
   backend:
-    image: learnanylanguage-backend:latest
+    image: backend:latest
     restart: always
     ports:
       - 8180:8180      
+
+  proxy:
+    image: proxy:latest
+    restart: always
+
+  frontend:
+    image: frontend:latest
+    restart: always
+    ports:
+      - 8182:8182
