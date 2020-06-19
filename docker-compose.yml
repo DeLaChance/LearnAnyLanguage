@@ -6,9 +6,11 @@ services:
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: postgres
+    ports: 
+        - 5432:5432
 
-  adminer:
-    image: adminer
+  backend:
+    image: learnanylanguage-backend
     restart: always
     ports:
-      - 8080:8080      
+      - 8081:8081      
