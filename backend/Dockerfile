@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:latest AS learnanylanguage-backend
 
 ENV DB_HOST "db"
 ENV DB_PORT 5432
