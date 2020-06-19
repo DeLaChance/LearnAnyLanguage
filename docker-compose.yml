@@ -10,7 +10,7 @@ services:
         - 5432:5432
 
   backend:
-    image: learnanylanguage-backend
+    image: learnanylanguage-backend:latest
     restart: always
     ports:
-      - 8081:8081      
+      - 8180:8180      
