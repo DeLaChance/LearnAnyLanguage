@@ -10,10 +10,10 @@ import { PracticeRun } from './domain/PracticeRun';
 
 export const withCache: TypeOrmModuleOptions = {
     type: "postgres",
-    host: "localhost",
-    port: 5432,
-    username: "postgres",
-    password: "postgres",
+    host: process.env.DB_HOST ? process.env.DB_HOST : "localhost",
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+    username: process.env.DB_USER ? process.env.DB_USER : "postgres",
+    password: process.env.DB_PASSWORD ? process.env.DB_PASSWORD : "postgres",
     database: "learnanylanguage",
     schema: "learnanylanguage",
     synchronize: true,
