@@ -32,25 +32,25 @@ export default function RunsPage() {
                 setRuns(runs);
             });
 
+        const handleWebsocketData = (event: any) => {
+            if (event.runId && event.name) {
+                console.log(`RunsPage - handling run ${event.runId} and event name ${event.name}`)
+                updatePracticeRun(event.runId);
+            }
+        };
+
+        const updatePracticeRun = (runId: string) => {
+
+            backendClient.fetchPracticeRun(runId)
+                .then((newRun: PracticeRun) => {
+                    setRuns((prevRuns: PracticeRun[]) => [
+                        ...updateRuns(prevRuns, newRun)
+                    ]);
+                });
+        };
+
         websocketClient.subscribeToEvents("RunsPage", handleWebsocketData);
     }, []); 
-
-    const handleWebsocketData = (event: any) => {
-        if (event.runId && event.name) {
-            console.log(`RunsPage - handling run ${event.runId} and event name ${event.name}`)
-            updatePracticeRun(event.runId);
-        }
-    };
-
-    const updatePracticeRun = (runId: string) => {
-
-        backendClient.fetchPracticeRun(runId)
-            .then((newRun: PracticeRun) => {
-                setRuns((prevRuns: PracticeRun[]) => [
-                    ...updateRuns(prevRuns, newRun)
-                ]);
-            });
-    };
 
     const updateRuns = (prevRuns: PracticeRun[], newRun: PracticeRun): PracticeRun[] => {
         let index: number = prevRuns.findIndex(run => run.id === newRun.id);

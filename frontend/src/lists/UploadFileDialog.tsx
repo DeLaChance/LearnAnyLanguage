@@ -1,6 +1,5 @@
-import React, { Component } from 'react'
-import {DropzoneDialog} from 'material-ui-dropzone'
-import Button from '@material-ui/core/Button';
+import { DropzoneDialog } from 'material-ui-dropzone';
+import React from 'react';
  
 export type Props = {
     open: boolean;

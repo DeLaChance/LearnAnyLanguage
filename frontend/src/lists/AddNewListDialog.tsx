@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { createStyles, Divider, FormControl, InputLabel, makeStyles, MenuItem, Theme } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Select from '@material-ui/core/Select/Select';
-import { Language } from '../domain/Language';
-import { MenuItem, FormControl, Theme, makeStyles, createStyles, InputLabel, Divider } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
+import React, { useEffect, useState } from 'react';
 import { Optional } from "typescript-optional";
 import backendClient from '../clients/BackendHttpClient';
+import { Language } from '../domain/Language';
 
 export type Props = {
     open: boolean;
@@ -53,7 +52,7 @@ export default function AddNewListDialog(props: Props) {
     );
     
     const findLanguage = (name: string): Optional<Language> => {
-      return Optional.ofNullable(languages.find(language => language.name === name));
+        return Optional.ofNullable(languages.find(language => language.name === name));
     };
 
     const sourceLanguageSelect = (

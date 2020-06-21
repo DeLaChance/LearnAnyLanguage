@@ -12,8 +12,6 @@ import StopIcon from '@material-ui/icons/Stop';
 import PauseIcon from '@material-ui/icons/Pause';
 import { IconButton } from '@material-ui/core';
 
-const LINEAR_PROGRESS_RATE: number = 100;
-
 export default function ActiveRunPage() {
 
     const [practiceRun, setPracticeRun] = useState<PracticeRun>();
@@ -103,12 +101,7 @@ export default function ActiveRunPage() {
         if (runId) {
             fetchAllRequiredData(runId);
         }
-    }, []); 
-
-    useEffect(() => {        
-        websocketClient.subscribeToEvents("ActiveRunPage", handleEvent);
-        websocketClient.subscribeToNotifications("ActiveRunPage", handleNotification);
-    }, [practiceRun])
+    }, [runId]); 
 
     const handleEvent = (event: any) => {
         console.log(`Handling event ${JSON.stringify(event)}.`)
@@ -148,6 +141,13 @@ export default function ActiveRunPage() {
         }
     }
 
+    const subscribeInBeginning = () => {
+        websocketClient.subscribeToEvents("ActiveRunPage", handleEvent);
+        websocketClient.subscribeToNotifications("ActiveRunPage", handleNotification);
+    }
+
+    useEffect(subscribeInBeginning, [practiceRun])
+
     const generateLinearProgressBar = () => {
         return (
             <div className={classes.linearProgress}>
@@ -159,17 +159,6 @@ export default function ActiveRunPage() {
     };
 
     const generateTextField = (practiceRun: PracticeRun) => {
-
-        let selectedClassName: any;
-        if (answerIsGivenOrTimeout) {
-            if (correctAnswerIsgiven) {
-                selectedClassName = classes.textFieldSuccess;
-            } else {
-                selectedClassName = classes.textFieldError;
-            }
-        } else {
-            selectedClassName = classes.textField;
-        }
 
         const handleTextFieldChange = (event: any) => {
             setAnswer(event.target.value);

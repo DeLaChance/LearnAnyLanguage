@@ -1,6 +1,6 @@
 import { CircularProgress } from '@material-ui/core';
 import MaterialTable, { Column, MTableBodyRow } from 'material-table';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import backendClient from '../clients/BackendHttpClient';
 import ArrowBackButton from '../components/ArrowBackButton';
 import { PracticeList } from '../domain/PracticeList';
@@ -31,15 +31,21 @@ export default function PracticeListTable(props: Props) {
         data: [],
     });
 
-    // Similar to componentDidMount and componentDidUpdate:
-    useEffect(() => {
-        backendClient.fetchPracticeList(props.practiceListId)
-            .then(practiceList => updatePracticeListAndTableData(practiceList));
-    }, []); 
-
-
-    const updatePracticeListAndTableData = (practiceList: PracticeList) => {
+    const updatePracticeListAndTableData = useCallback((practiceList: PracticeList) => {
         console.log("Rerendering practice list");
+
+        const mapPracticeList = (practiceList: PracticeList): Row[] => {
+            let data: Row[] = practiceList.translations.map(translation => {
+                return {
+                    id: translation.id,
+                    source: translation.source,
+                    target: translation.target
+                }
+            });
+    
+            return data;       
+        }
+
         let data: Row[] = mapPracticeList(practiceList);
         let columns: Column<Row>[] = [
             { 
@@ -58,7 +64,15 @@ export default function PracticeListTable(props: Props) {
         });
 
         setPracticeList(practiceList);
-    };
+    }, []);
+
+    // Similar to componentDidMount and componentDidUpdate:
+    useEffect(() => {
+        backendClient.fetchPracticeList(props.practiceListId)
+            .then(practiceList => updatePracticeListAndTableData(practiceList));
+    }, [props.practiceListId, updatePracticeListAndTableData]); 
+
+
 
     const addRowToPracticeList = (newData: Row): Promise<PracticeList> => {
         if (practiceList) {
@@ -95,18 +109,6 @@ export default function PracticeListTable(props: Props) {
 
         return promise;
     };
-
-    const mapPracticeList = (practiceList: PracticeList): Row[] => {
-        let data: Row[] = practiceList.translations.map(translation => {
-            return {
-                id: translation.id,
-                source: translation.source,
-                target: translation.target
-            }
-        });
-
-        return data;       
-    }
 
     const renderTable = (practiceList: PracticeList) => {
         return (

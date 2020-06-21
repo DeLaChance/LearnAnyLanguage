@@ -35,8 +35,8 @@ export default function AppMenuBar() {
         <div className={classes.root}>
             <AppBar position="static">
                 <Toolbar>
-                    <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-                        <MenuIcon onClick={(e) => toggleDrawer(e)}/>
+                    <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={(e) => toggleDrawer(e)}>
+                        <MenuIcon/>
                     </IconButton>
                     <Typography variant="h6" className={classes.title}>
                     LearnAnyLanguage
