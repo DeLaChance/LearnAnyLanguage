@@ -77,4 +77,8 @@ export class PracticeListService extends TypeOrmCrudService<PracticeList> {
         practiceList = await this.repo.save(practiceList);
         return Promise.resolve(practiceList);
     }
+
+    findOneOrFail(listId: string) {
+        return this.repo.findOneOrFail(listId);
+    }
 }

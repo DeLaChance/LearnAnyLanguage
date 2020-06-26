@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
+import { Inject, Injectable, Logger, OnApplicationBootstrap, NotFoundException } from "@nestjs/common";
 import { EventBus } from '@nestjs/cqrs';
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -25,7 +25,7 @@ const TIME_BETWEEN_ANSWERS_MILLIS: number = 4000;
 
 @Injectable()
 export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implements OnApplicationBootstrap {
-    
+        
     @InjectRepository(PracticeList)
     practiceListRepo: Repository<PracticeList>;
 
@@ -205,6 +205,10 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implemen
             },
             relations: ['translationAttempts']
         });
+    }
+
+    async findOneOrFail(runId: string): Promise<PracticeRun> {
+        return this.repo.findOneOrFail(runId);
     }
 
     onApplicationBootstrap() {

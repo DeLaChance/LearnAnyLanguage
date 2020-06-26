@@ -25,7 +25,7 @@ import { HttpResponseInterceptor } from "./HttpResponseInterceptor";
 
     @Get(":runId")
     findById(@Param("runId") runId: string) {
-        return this.service.findOne(runId);
+        return this.service.findOneOrFail(runId);
     }
 
     @Get("lists/:listId")
