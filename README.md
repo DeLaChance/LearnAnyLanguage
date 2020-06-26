@@ -1,5 +1,7 @@
 # LearnAnyLanguage
 A web application that can help you learn any language. You can upload your favorite list of words and practice as much as you like.
+You can see a [demo video](https://youtu.be/sEcO9Zoa6vo) showcasing some of the features of this app.
+
 
 ## Technologies
 - Typescript (NestJS, TypeORM)
@@ -9,7 +11,7 @@ A web application that can help you learn any language. You can upload your favo
 - PostGres database
 
 ## Development build and run
-You need to have a local PostGres database running at port `5432`. ([config](backend/src/orm.config.ts)). Furthermore, you need to have Node installed. Then you need to open 3 command prompts/shells:
+You need to have a local PostGres database running at `localhost:5432`. You can also set some environment variables ([see this config](backend/src/orm.config.ts)). Furthermore, you need to have Node installed. Then you need to open 3 command prompts/shells:
 
 ### Backend
     - `cd backend`
@@ -50,6 +52,9 @@ You need to have a local PostGres database running at port `5432`. ([config](bac
 
 Then you can access the frontend at [http://localhost:8282](http://localhost:8282) and the backend APIs at [http://localhost:8180](http://localhost:8180). The database runs at port `5432`.
 
+## Word list file format
+Word lists need to be uploaded in self-defined `*.lst`-format. Examples are in [here](backend/example-lists/).
+
 
 ## Credits and inspiration
 - [Thinking in React](https://reactjs.org/docs/thinking-in-react.html)
@@ -59,11 +64,11 @@ Then you can access the frontend at [http://localhost:8282](http://localhost:828
 
 
 ## TODO-list
-- Bugs 
-    * 404's from backend 
+- Open bugs 
+    * Refresh needed sometimes. E.g. after uploading a list.
     * React issues
     * Merge docker changes into branch
-    * Demo video on Youtube
+
 
 
 
