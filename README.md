@@ -66,8 +66,8 @@ Word lists need to be uploaded in self-defined `*.lst`-format. Examples are in [
 ## TODO-list
 - Open bugs 
     * Refresh needed sometimes. E.g. after uploading a list.
-    * React issues
-    * Merge docker changes into branch
+    * React issues.
+    * Docker build slow.
 
 
 
