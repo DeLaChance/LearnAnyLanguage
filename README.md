@@ -60,8 +60,9 @@ Then you can access the frontend at [http://localhost:8282](http://localhost:828
 
 ## TODO-list
 - Bugs 
-    * Error when opening list
+    * 404's from backend 
     * React issues
+    * Merge docker changes into branch
     * Demo video on Youtube
 
 

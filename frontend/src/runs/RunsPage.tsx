@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 
 export default function RunsPage() {
 
-    let { listIdParam } = useParams();
+    let { listId } = useParams();
 
     // Hooks
     const [runs, setRuns] = useState<PracticeRun[]>([]);
@@ -23,14 +23,14 @@ export default function RunsPage() {
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
-        let practiceRunsPromise: Promise<PracticeRun[]> = listIdParam ? backendClient.fetchPracticeRunByListId(listIdParam)
+        let practiceRunsPromise: Promise<PracticeRun[]> = listId ? backendClient.fetchPracticeRunByListId(listId)
             : backendClient.fetchPracticeRuns();
 
         practiceRunsPromise.then(async runs => {
             let uniqueListIds: string[] = Array.from(new Set(runs.map(run => run.listId)));
 
-            let lists: PracticeList[] = await Promise.all(uniqueListIds.map(listId => 
-                backendClient.fetchPracticeList(listId)
+            let lists: PracticeList[] = await Promise.all(uniqueListIds.map(aListId => 
+                backendClient.fetchPracticeList(aListId)
             ));
 
             let listsMap: Map<string, PracticeList> = new Map<string, PracticeList>();
@@ -58,7 +58,7 @@ export default function RunsPage() {
         };
 
         websocketClient.subscribeToEvents("RunsPage", handleWebsocketData);
-    }, []); 
+    }, [listId]); 
 
     const updateRuns = (prevRuns: PracticeRun[], newRun: PracticeRun): PracticeRun[] => {
         let index: number = prevRuns.findIndex(run => run.id === newRun.id);
