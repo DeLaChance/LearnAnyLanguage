@@ -15,7 +15,7 @@ export default function RunPage() {
             backendClient.fetchPracticeRun(runId)
                 .then(run => setRun(run));
         }
-    }, []);
+    }, [runId]);
 
     const useStyles = makeStyles({
         table: {

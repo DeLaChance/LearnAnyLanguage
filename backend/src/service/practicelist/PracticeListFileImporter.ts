@@ -59,6 +59,9 @@ export class PracticeListFileImporter {
         practiceList.name = listName.trim();
         practiceList.source = sourceLanguage;
         practiceList.target = targetLanguage;
+        practiceList.translations = [];
+        practiceList.runsCount = 0;
+
         practiceList = await this.practiceListRepo.save(practiceList);
 
         let translations: Translation[] = [];

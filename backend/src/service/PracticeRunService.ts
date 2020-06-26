@@ -1,31 +1,31 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger, OnApplicationBootstrap, NotFoundException } from "@nestjs/common";
 import { EventBus } from '@nestjs/cqrs';
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TypeOrmCrudService } from "@nestjsx/crud-typeorm";
 import { Repository } from 'typeorm';
 import { Optional } from 'typescript-optional';
+import { WebSocketAdapter } from "../adapter/websocket/WebSocketAdapter";
 import { CreatePracticeRunCommand } from '../domain/commands/CreatePracticeRunCommand';
+import { PracticeRunAnswerCreatedEvent } from "../domain/events/PracticeRunAnswerCreatedEvent";
 import { PracticeRunAnswerGivenEvent } from '../domain/events/PracticeRunAnswerGivenEvent';
 import { PracticeRunAnswerTimedOutEvent } from '../domain/events/PracticeRunAnswerTimedOutEvent';
 import { PracticeRunCreatedEvent } from '../domain/events/PracticeRunCreatedEvent';
+import { PracticeRunPausedEvent } from "../domain/events/PracticeRunPausedEvent";
 import { PracticeRunRestartedEvent } from '../domain/events/PracticeRunRestartedEvent';
 import { PracticeRunStoppedEvent } from '../domain/events/PracticeRunStoppedEvent';
 import { PracticeList } from '../domain/PracticeList';
 import { PracticeRun, Status } from '../domain/PracticeRun';
 import { Translation } from '../domain/Translation';
 import { TranslationAttempt } from '../domain/TranslationAttempt';
-import { WebSocketAdapter } from "../adapter/websocket/WebSocketAdapter";
-import { PracticeRunAnswerCreatedEvent } from "../domain/events/PracticeRunAnswerCreatedEvent";
-import { PracticeRunPausedEvent } from "../domain/events/PracticeRunPausedEvent";
 
 const NOTIFICATION_FREQUENCY_MILLIS: number = 100;
 const MILLIS_PER_SECOND: number = 1000;
-const TIME_BETWEEN_ANSWERS_MILLIS: number = 2000;
+const TIME_BETWEEN_ANSWERS_MILLIS: number = 4000;
 
 @Injectable()
-export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
-
+export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implements OnApplicationBootstrap {
+        
     @InjectRepository(PracticeList)
     practiceListRepo: Repository<PracticeList>;
 
@@ -40,6 +40,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
 
     @Inject()
     schedulerRegistry: SchedulerRegistry;
+    
 
     constructor(@InjectRepository(PracticeRun) repo: Repository<PracticeRun>) {
         super(repo);
@@ -81,8 +82,12 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
 
     async pause(runId: string): Promise<PracticeRun> {
         let practiceRun: PracticeRun = await this.repo.findOneOrFail(runId);
+        return this.pauseRun(practiceRun);
+    }
+
+    private async pauseRun(practiceRun: PracticeRun): Promise<PracticeRun> {
         practiceRun.pause();
-        this.cancelExistingTimeOut(runId);
+        this.cancelExistingTimeOut(practiceRun.id);
         practiceRun = await this.repo.save(practiceRun);
 
         Logger.log(`Paused practice run '${practiceRun.id}'`);
@@ -144,7 +149,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
             
             practiceRun = await this.repo.findOneOrFail(runId);
             if (practiceRun.allAnswersGiven()) {
-                await this.finish(practiceRun.id);
+                this.finish(practiceRun.id);
             } else {
                 this.publishPracticeRunAnswerGivenEvent(practiceRun.id);                
             }
@@ -189,9 +194,41 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         const callback: (() => void) = () => {
             this.scheduleNextAnswerTimeOut(runId);
         };
-        const timeout = setTimeout(callback, TIME_BETWEEN_ANSWERS_MILLIS);        
+        const timeout = setTimeout(callback, TIME_BETWEEN_ANSWERS_MILLIS / 2);        
         this.schedulerRegistry.addTimeout(runId, timeout);
     }    
+
+    findByListId(listId: string): Promise<PracticeRun[]> {
+        return this.repo.find({
+            where: {
+                listId: listId
+            },
+            relations: ['translationAttempts']
+        });
+    }
+
+    async findOneOrFail(runId: string): Promise<PracticeRun> {
+        return this.repo.findOneOrFail(runId);
+    }
+
+    onApplicationBootstrap() {
+        this.pauseAllActiveRunsAtStartup()
+            .then(runs => Logger.log("Paused all active runs at startup."))
+            .catch(error => Logger.error(`Could not cancel active runs at startup due to ${error}.`));
+    }
+
+    private async pauseAllActiveRunsAtStartup(): Promise<PracticeRun[]> {
+        let runs: PracticeRun[] = await this.findActive();
+        Logger.log(`Found ${runs.length} active practice runs at startup. Setting them to paused.`);
+        let promise: Promise<PracticeRun[]> = Promise.all(runs.map(run => this.pauseRun(run)));
+        return promise;
+    }
+
+    private findActive(): Promise<PracticeRun[]> {
+        return this.repo.createQueryBuilder("practiceRun")
+            .where("practiceRun.status = :status", { status: Status.RUNNING })
+            .getMany();
+    }
 
     private publishPracticeRunCreatedEvent(runId: string) {
         let event: PracticeRunCreatedEvent = new PracticeRunCreatedEvent();        
@@ -251,7 +288,9 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
     }
 
     private cancelExistingTimeOut(runId: string) {
-        this.schedulerRegistry.deleteInterval(runId);
+        this.schedulerRegistry.getIntervals()
+            .filter(key => key === runId)
+            .forEach(key => this.schedulerRegistry.deleteInterval(runId));
     }
 
     private async scheduleNextAnswerTimeOut(runId: string) {
@@ -260,7 +299,8 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
             return () => {
                 timeSpentOnCurrentWord += NOTIFICATION_FREQUENCY_MILLIS;
                 if (timeSpentOnCurrentWord >= timeOutInMillis) {
-                    this.timeOutAnswer(runId);
+                    this.timeOutAnswer(runId)
+                        .catch(error => Logger.error(`Error while trying to time out answer: ${error}.`));
                 } else {
                     this.sendRunningTestNotification(runId, timeSpentOnCurrentWord);
                 }
@@ -274,13 +314,15 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
 
         let practiceRun: PracticeRun = await this.repo.findOneOrFail(runId);
         const timeOutInMillis = practiceRun.timePerWord * MILLIS_PER_SECOND;
-        
-        const callback: (() => void) = generateIntervalCallback(timeOutInMillis);
-        const intervalId = setInterval(callback, NOTIFICATION_FREQUENCY_MILLIS);
-        this.schedulerRegistry.addInterval(runId, intervalId);
 
         Logger.log(`Scheduling answer timeout for run='${runId}' in ${timeOutInMillis}ms.`);
         this.publishPracticeRunAnswerCreatedEvent(runId);
+
+        setTimeout(() => {
+            const callback: (() => void) = generateIntervalCallback(timeOutInMillis);
+            const intervalId = setInterval(callback, NOTIFICATION_FREQUENCY_MILLIS);
+            this.schedulerRegistry.addInterval(runId, intervalId);
+        }, TIME_BETWEEN_ANSWERS_MILLIS / 2);
     }
 
     private sendRunningTestNotification(runId: string, timeSpentOnCurrentWord: number) {
@@ -304,5 +346,5 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> {
         }
       
         return array;
-      }
+    }    
 }

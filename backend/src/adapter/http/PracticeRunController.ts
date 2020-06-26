@@ -25,7 +25,12 @@ import { HttpResponseInterceptor } from "./HttpResponseInterceptor";
 
     @Get(":runId")
     findById(@Param("runId") runId: string) {
-        return this.service.findOne(runId);
+        return this.service.findOneOrFail(runId);
+    }
+
+    @Get("lists/:listId")
+    findByListId(@Param("listId") listId: string): Promise<PracticeRun[]> {
+        return this.service.findByListId(listId);
     }
 
     @Put(":runId/giveAnswer")

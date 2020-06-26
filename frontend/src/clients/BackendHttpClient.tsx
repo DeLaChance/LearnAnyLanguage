@@ -6,7 +6,7 @@ import { PracticeRun } from "../domain/PracticeRun";
 import { TranslationAttempt } from "../domain/TranslationAttempt";
 
 class BackendHttpClient {
-
+    
     fetchLanguages(): Promise<Language[]> {
         const requestOptions = {
             method: 'GET'
@@ -134,6 +134,16 @@ class BackendHttpClient {
                 let practiceRun: PracticeRun = PracticeRun.from(responseJson);
                 return Promise.resolve(practiceRun);
             }); 
+    }
+
+    fetchPracticeRunByListId(listId: string): Promise<PracticeRun[]> {
+
+        const requestOptions = {
+            method: 'GET'
+        }
+        let url: string = `${config.backendBaseUrl}runs/lists/${listId}`;
+        return this.makeHttpRequest(url, requestOptions)
+            .then(responseJson => PracticeRun.fromMany(responseJson));
     }
 
     fetchPracticeRuns(): Promise<PracticeRun[]> {

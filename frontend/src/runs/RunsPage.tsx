@@ -1,4 +1,6 @@
-import { createStyles, Divider, LinearProgress, ListItemSecondaryAction, ListItemText, makeStyles, Theme, Tooltip, Typography } from '@material-ui/core';
+import { createStyles, Divider, LinearProgress, ListItemSecondaryAction, 
+    ListItemText, makeStyles, Theme, Typography, Tooltip, IconButton, ListItemIcon
+} from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import React, { useEffect, useState } from 'react';
@@ -7,9 +9,13 @@ import backendClient from '../clients/BackendHttpClient';
 import websocketClient from '../clients/BackendWebSocketClient';
 import { PracticeList } from '../domain/PracticeList';
 import { PracticeRun } from '../domain/PracticeRun';
+import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
+import { useParams } from 'react-router-dom';
 
 
 export default function RunsPage() {
+
+    let { listId } = useParams();
 
     // Hooks
     const [runs, setRuns] = useState<PracticeRun[]>([]);
@@ -17,45 +23,46 @@ export default function RunsPage() {
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
-        backendClient.fetchPracticeRuns()
-            .then(async runs => {
-                let uniqueListIds: string[] = Array.from(new Set(runs.map(run => run.listId)));
+        let practiceRunsPromise: Promise<PracticeRun[]> = listId ? backendClient.fetchPracticeRunByListId(listId)
+            : backendClient.fetchPracticeRuns();
 
-                let lists: PracticeList[] = await Promise.all(uniqueListIds.map(listId => 
-                    backendClient.fetchPracticeList(listId)
-                ));
+        practiceRunsPromise.then(async runs => {
+            let uniqueListIds: string[] = Array.from(new Set(runs.map(run => run.listId)));
 
-                let listsMap: Map<string, PracticeList> = new Map<string, PracticeList>();
-                lists.forEach(list => listsMap.set(list.id, list));
-                setListsMap(listsMap);
+            let lists: PracticeList[] = await Promise.all(uniqueListIds.map(aListId => 
+                backendClient.fetchPracticeList(aListId)
+            ));
 
-                setRuns(runs);
-            });
+            let listsMap: Map<string, PracticeList> = new Map<string, PracticeList>();
+            lists.forEach(list => listsMap.set(list.id, list));
+            setListsMap(listsMap);
+
+            setRuns(runs);
+        });
+
+        const handleWebsocketData = (event: any) => {
+            if (event.runId && event.name) {
+                console.log(`RunsPage - handling run ${event.runId} and event name ${event.name}`)
+                updatePracticeRun(event.runId);
+            }
+        };
+
+        const updatePracticeRun = (runId: string) => {
+
+            backendClient.fetchPracticeRun(runId)
+                .then((newRun: PracticeRun) => {
+                    setRuns((prevRuns: PracticeRun[]) => [
+                        ...updateRuns(prevRuns, newRun)
+                    ]);
+                });
+        };
 
         websocketClient.subscribeToEvents("RunsPage", handleWebsocketData);
-    }, []); 
-
-    const handleWebsocketData = (event: any) => {
-        if (event.runId && event.name) {
-            console.log(`RunsPage - handling run ${event.runId} and event name ${event.name}`)
-            updatePracticeRun(event.runId);
-        }
-    };
-
-    const updatePracticeRun = (runId: string) => {
-
-        backendClient.fetchPracticeRun(runId)
-            .then((newRun: PracticeRun) => {
-                setRuns((prevRuns: PracticeRun[]) => [
-                    ...updateRuns(prevRuns, newRun)
-                ]);
-            });
-    };
+    }, [listId]); 
 
     const updateRuns = (prevRuns: PracticeRun[], newRun: PracticeRun): PracticeRun[] => {
         let index: number = prevRuns.findIndex(run => run.id === newRun.id);
         console.log(`Run ${newRun} and index ${index}`);
-
 
         if (index >= 0 && index < prevRuns.length) {
             prevRuns[index] = newRun;
@@ -122,23 +129,43 @@ export default function RunsPage() {
 
     const generateListItem = (list: PracticeList, run: PracticeRun, runAttemptCount: number): React.ReactElement => {
 
-        let secondaryActionBlock: React.ReactElement;
-
         let runDescription: string = `Run attempt ${runAttemptCount}: started at ${run.startDate.toLocaleString()}`;
-        if (run.isActive()) {
-            secondaryActionBlock = generateProgressBar(run);
+        let actionButton: React.ReactElement;
+
+        if (run.isActive() || run.isPaused()) {
+            runDescription += ` and current state is ${run.status}.`;
+
+            let viewActiveRunRoute: string = `/runs/active/${run.id}`;
+            actionButton = (
+                <IconButton edge="end" aria-label="View running test">
+                    <Tooltip title="View running test" onClick={(e) => {
+                        e.stopPropagation();
+                        redirect(viewActiveRunRoute);
+                    }}>
+                        <PlayCircleFilledIcon/>
+                    </Tooltip>
+                </IconButton>   
+            );
         } else {
             runDescription += ` and finished at ${run.lastActionDate.toLocaleString()}.`;
-            secondaryActionBlock = generateCompletionBar(run);
+            actionButton = (
+                <></>
+            );
         }
-                
+
+        let progressBar: React.ReactElement = generateProgressBar(run);
+
         return (
             <ListItem key={run.id} className={classes.listItem} button onClick={(e) => redirect(`/runs/${run.id}`)}>
                 <ListItemText primary={list.name} secondary={runDescription} />
 
                 <ListItemSecondaryAction className={classes.listItemActionBlock}>
-                    {secondaryActionBlock}
+                    {progressBar}
                 </ListItemSecondaryAction>
+
+                <ListItemIcon>
+                    {actionButton}
+                </ListItemIcon>                
 
             </ListItem>
         )
@@ -146,7 +173,10 @@ export default function RunsPage() {
 
     const generateProgressBar = (run: PracticeRun) => {
 
-        let progressCount: number = run.determineProgressCount();
+        let answeredCount: number = run.determineAnsweredCount();
+        let timedOutCount: number = run.determineTimedOutCount();
+        let progressCount = answeredCount + timedOutCount;
+
         let totalCount: number = run.determineTotalCount();
         let progressCountPercentage: number = (progressCount*100 / totalCount);
         let progressText: string = `Finished ${progressCount} words out of ${totalCount}.`;
@@ -156,27 +186,10 @@ export default function RunsPage() {
             <Tooltip title={progressText}>
                 <LinearProgress variant="determinate" value={progressCountPercentage} color="secondary" />                    
             </Tooltip>
-            <Typography variant="subtitle2">{`${progressCount} / ${totalCount}`}</Typography>
+            <Typography variant="subtitle2">{`Gave ${progressCount} answers out of in total ${totalCount} words.`}</Typography>
             </>
         );
     };
-
-    const generateCompletionBar = (run: PracticeRun) => {
-        let correctAnswersCount: number = run.determineCorrectAnswersCount();
-        let wrongAnswersCount: number = run.determineWrongAnswersCount();
-
-        let progressText: string = `Run finished. # of correct is ${correctAnswersCount}. # of wrong is ${wrongAnswersCount}.`;
-        
-        return (
-            <>
-            <Tooltip title={progressText}>
-                <LinearProgress variant="determinate" value={correctAnswersCount} 
-                    valueBuffer={correctAnswersCount+wrongAnswersCount} color="primary" />                    
-            </Tooltip>
-            <Typography variant="subtitle2">{`# of correct: ${correctAnswersCount}, # of wrong: ${wrongAnswersCount}`}</Typography>
-            </>
-        );
-    }
 
     const runListItems: React.ReactElement[] = [];
     groupRunsByListId(runs).forEach((runs, listId) => runListItems.push(...generateListItems(listId, runs)));

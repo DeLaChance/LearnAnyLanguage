@@ -1,5 +1,3 @@
-import { Translation } from "./Translation";
-
 export class TranslationAttempt {
 
     id: string;
@@ -36,6 +34,8 @@ export class TranslationAttempt {
             const translationAttempt: TranslationAttempt | null = this.from(jsonArrayElement);
             if (translationAttempt) {
                 return translationAttempt;
+            } else {
+                return null;
             }
         });
     }

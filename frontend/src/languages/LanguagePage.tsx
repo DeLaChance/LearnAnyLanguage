@@ -2,10 +2,10 @@ import { GridList, GridListTile } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import jsonpath from 'jsonpath';
 import React, { useEffect, useState } from 'react';
+import backendClient from '../clients/BackendHttpClient';
 import config from '../config/config.json';
 import { Language } from '../domain/Language';
 import LanguageCard from "./LanguageCard";
-import backendClient from '../clients/BackendHttpClient';
 
 export default function LanguagePage() {
 
@@ -13,23 +13,23 @@ export default function LanguagePage() {
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
+        const prepareLanguages = async function(): Promise<void> {
+            let languages: Language[] = await backendClient.fetchLanguages();
+    
+            languages = await Promise.all(languages.map(async language => {
+                let description: string[] = await fetchDescription(language);
+                language.description = description;
+                return Promise.resolve(language);
+            }));
+            
+            setLanguages(languages);
+            console.log(`Set languages to ${languages}`);
+    
+            return Promise.resolve();
+        }
+
         prepareLanguages();
     }, []); 
-
-    const prepareLanguages = async function(): Promise<void> {
-        let languages: Language[] = await backendClient.fetchLanguages();
-
-        languages = await Promise.all(languages.map(async language => {
-            let description: string[] = await fetchDescription(language);
-            language.description = description;
-            return Promise.resolve(language);
-        }));
-        
-        setLanguages(languages);
-        console.log(`Set languages to ${languages}`);
-
-        return Promise.resolve();
-    }
 
     const fetchDescription = async function(language: Language): Promise<string[]> {
 

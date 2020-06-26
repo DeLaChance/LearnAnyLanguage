@@ -62,7 +62,6 @@ export default function StartPracticeRunPage() {
         history.push(route);        
     }
 
-
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
         backendClient.fetchPracticeList(practiceListId)
@@ -75,7 +74,7 @@ export default function StartPracticeRunPage() {
                     .then(targetLanguage => setTargetLanguage(targetLanguage));            
             });
         
-    }, []); 
+    }, [practiceListId]); 
 
     if (practiceList === undefined || sourceLanguage === undefined || targetLanguage === undefined) {
         return (

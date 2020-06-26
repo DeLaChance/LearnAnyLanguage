@@ -44,7 +44,7 @@ export class PracticeListController implements CrudController<PracticeList> {
 
     @Get(":listId")
     findById(@Param("listId") listId: string) {
-        return this.service.findOne(listId);
+        return this.service.findOneOrFail(listId);
     }
 
     @Post("create")
