@@ -12,6 +12,8 @@ services:
   backend:
     image: backend:latest
     restart: always
+    depends_on: 
+      - db    
     ports:
       - 8180:8180      
 
