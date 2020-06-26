@@ -330,5 +330,5 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implemen
         }
       
         return array;
-      }
+    }    
 }

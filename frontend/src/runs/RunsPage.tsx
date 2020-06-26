@@ -56,7 +56,6 @@ export default function RunsPage() {
         let index: number = prevRuns.findIndex(run => run.id === newRun.id);
         console.log(`Run ${newRun} and index ${index}`);
 
-
         if (index >= 0 && index < prevRuns.length) {
             prevRuns[index] = newRun;
         } else {
@@ -158,7 +157,7 @@ export default function RunsPage() {
             <Tooltip title={progressText}>
                 <LinearProgress variant="determinate" value={progressCountPercentage} color="secondary" />                    
             </Tooltip>
-            <Typography variant="subtitle2">{`Gave ${progressCount} answers out of in total ${totalCount} words`}</Typography>
+            <Typography variant="subtitle2">{`Gave ${progressCount} answers out of in total ${totalCount} words.`}</Typography>
             </>
         );
     };

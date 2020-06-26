@@ -59,8 +59,6 @@ Then you can access the frontend at [http://localhost:8282](http://localhost:828
 ## TODO-list
 - Bugs 
     * Time bar does not start at 0
-    * Correct/wrong answer in runs page
-    * Backend is down
     * React issues
     * Final touch
 
