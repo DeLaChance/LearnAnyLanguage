@@ -2,13 +2,11 @@ FROM node:latest AS proxy
 
 ENV PORT 8181
 
-WORKDIR /root/
-COPY src ./root/src/
-COPY *.json /root/
-RUN npm install
-COPY node_modules /root/node_modules/
-
+WORKDIR /root/proxy/
+COPY *.js *.json ./
+RUN ls ./index.js
+RUN yarn --verbose install
 
 EXPOSE 8181
 
-CMD cd /root/ && npm run start
+CMD [ "yarn", "run", "start" ]
