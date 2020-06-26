@@ -122,10 +122,8 @@ export default function RunsPage() {
 
     const generateListItem = (list: PracticeList, run: PracticeRun, runAttemptCount: number): React.ReactElement => {
 
-
-
         let runDescription: string = `Run attempt ${runAttemptCount}: started at ${run.startDate.toLocaleString()}`;
-        if (run.isActive()) {
+        if (run.isActive() || run.isPaused()) {
             runDescription += ` and current state is ${run.status}.`;
         } else {
             runDescription += ` and finished at ${run.lastActionDate.toLocaleString()}.`;
