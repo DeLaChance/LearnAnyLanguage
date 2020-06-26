@@ -1,4 +1,6 @@
-import { createStyles, Divider, LinearProgress, ListItemSecondaryAction, ListItemText, makeStyles, Theme, Tooltip, Typography } from '@material-ui/core';
+import { createStyles, Divider, LinearProgress, ListItemSecondaryAction, 
+    ListItemText, makeStyles, Theme, Typography, Tooltip, IconButton, ListItemIcon
+} from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import React, { useEffect, useState } from 'react';
@@ -7,6 +9,7 @@ import backendClient from '../clients/BackendHttpClient';
 import websocketClient from '../clients/BackendWebSocketClient';
 import { PracticeList } from '../domain/PracticeList';
 import { PracticeRun } from '../domain/PracticeRun';
+import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 
 
 export default function RunsPage() {
@@ -122,21 +125,42 @@ export default function RunsPage() {
     const generateListItem = (list: PracticeList, run: PracticeRun, runAttemptCount: number): React.ReactElement => {
 
         let runDescription: string = `Run attempt ${runAttemptCount}: started at ${run.startDate.toLocaleString()}`;
+        let actionButton: React.ReactElement;
+
         if (run.isActive() || run.isPaused()) {
             runDescription += ` and current state is ${run.status}.`;
+
+            let viewActiveRunRoute: string = `/runs/active/${run.id}`;
+            actionButton = (
+                <IconButton edge="end" aria-label="View running test">
+                    <Tooltip title="View running test" onClick={(e) => {
+                        e.stopPropagation();
+                        redirect(viewActiveRunRoute);
+                    }}>
+                        <PlayCircleFilledIcon/>
+                    </Tooltip>
+                </IconButton>   
+            );
         } else {
             runDescription += ` and finished at ${run.lastActionDate.toLocaleString()}.`;
+            actionButton = (
+                <></>
+            );
         }
 
-        let secondaryActionBlock: React.ReactElement = generateProgressBar(run);
+        let progressBar: React.ReactElement = generateProgressBar(run);
 
         return (
             <ListItem key={run.id} className={classes.listItem} button onClick={(e) => redirect(`/runs/${run.id}`)}>
                 <ListItemText primary={list.name} secondary={runDescription} />
 
                 <ListItemSecondaryAction className={classes.listItemActionBlock}>
-                    {secondaryActionBlock}
+                    {progressBar}
                 </ListItemSecondaryAction>
+
+                <ListItemIcon>
+                    {actionButton}
+                </ListItemIcon>                
 
             </ListItem>
         )

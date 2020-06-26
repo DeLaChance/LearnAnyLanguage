@@ -2,8 +2,10 @@
 A web application that can help you learn any language. You can upload your favorite list of words and practice as much as you like.
 
 ## Technologies
-- React 
 - Typescript (NestJS, TypeORM)
+- React 
+- React dom router
+- NPM and Yarn
 - PostGres database
 
 ## Development build and run
@@ -63,8 +65,6 @@ Then you can access the frontend at [http://localhost:8282](http://localhost:828
     * React issues
     * Demo video on Youtube
 
-- Make it in a docker container + start scripts
-- Code cleanup + refactor 
 
 
 
