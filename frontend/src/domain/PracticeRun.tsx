@@ -35,9 +35,15 @@ export class PracticeRun {
         this.currentTranslation = currentTranslation;
     }
 
-    determineProgressCount(): number {
+    determineAnsweredCount(): number {
         return this.translationAttempts
-            .filter(translationAttempt => translationAttempt.answerWasGiven || translationAttempt.timedOut)
+            .filter(translationAttempt => translationAttempt.answerWasGiven)
+            .length;
+    }
+
+    determineTimedOutCount(): number {
+        return this.translationAttempts
+            .filter(translationAttempt => translationAttempt.timedOut)
             .length;
     }
 

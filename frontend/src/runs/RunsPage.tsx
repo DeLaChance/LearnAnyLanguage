@@ -122,16 +122,17 @@ export default function RunsPage() {
 
     const generateListItem = (list: PracticeList, run: PracticeRun, runAttemptCount: number): React.ReactElement => {
 
-        let secondaryActionBlock: React.ReactElement;
+
 
         let runDescription: string = `Run attempt ${runAttemptCount}: started at ${run.startDate.toLocaleString()}`;
         if (run.isActive()) {
-            secondaryActionBlock = generateProgressBar(run);
+            runDescription += ` and current state is ${run.status}.`;
         } else {
             runDescription += ` and finished at ${run.lastActionDate.toLocaleString()}.`;
-            secondaryActionBlock = generateCompletionBar(run);
         }
-                
+
+        let secondaryActionBlock: React.ReactElement = generateProgressBar(run);
+
         return (
             <ListItem key={run.id} className={classes.listItem} button onClick={(e) => redirect(`/runs/${run.id}`)}>
                 <ListItemText primary={list.name} secondary={runDescription} />
@@ -146,7 +147,10 @@ export default function RunsPage() {
 
     const generateProgressBar = (run: PracticeRun) => {
 
-        let progressCount: number = run.determineProgressCount();
+        let answeredCount: number = run.determineAnsweredCount();
+        let timedOutCount: number = run.determineTimedOutCount();
+        let progressCount = answeredCount + timedOutCount;
+
         let totalCount: number = run.determineTotalCount();
         let progressCountPercentage: number = (progressCount*100 / totalCount);
         let progressText: string = `Finished ${progressCount} words out of ${totalCount}.`;
@@ -156,27 +160,10 @@ export default function RunsPage() {
             <Tooltip title={progressText}>
                 <LinearProgress variant="determinate" value={progressCountPercentage} color="secondary" />                    
             </Tooltip>
-            <Typography variant="subtitle2">{`${progressCount} / ${totalCount}`}</Typography>
+            <Typography variant="subtitle2">{`Gave ${progressCount} answers out of in total ${totalCount} words`}</Typography>
             </>
         );
     };
-
-    const generateCompletionBar = (run: PracticeRun) => {
-        let correctAnswersCount: number = run.determineCorrectAnswersCount();
-        let wrongAnswersCount: number = run.determineWrongAnswersCount();
-
-        let progressText: string = `Run finished. # of correct is ${correctAnswersCount}. # of wrong is ${wrongAnswersCount}.`;
-        
-        return (
-            <>
-            <Tooltip title={progressText}>
-                <LinearProgress variant="determinate" value={correctAnswersCount} 
-                    valueBuffer={correctAnswersCount+wrongAnswersCount} color="primary" />                    
-            </Tooltip>
-            <Typography variant="subtitle2">{`# of correct: ${correctAnswersCount}, # of wrong: ${wrongAnswersCount}`}</Typography>
-            </>
-        );
-    }
 
     const runListItems: React.ReactElement[] = [];
     groupRunsByListId(runs).forEach((runs, listId) => runListItems.push(...generateListItems(listId, runs)));
