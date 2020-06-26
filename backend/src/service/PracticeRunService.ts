@@ -25,7 +25,7 @@ const TIME_BETWEEN_ANSWERS_MILLIS: number = 4000;
 
 @Injectable()
 export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implements OnApplicationBootstrap {
-
+    
     @InjectRepository(PracticeList)
     practiceListRepo: Repository<PracticeList>;
 
@@ -197,6 +197,15 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implemen
         const timeout = setTimeout(callback, TIME_BETWEEN_ANSWERS_MILLIS / 2);        
         this.schedulerRegistry.addTimeout(runId, timeout);
     }    
+
+    findByListId(listId: string): Promise<PracticeRun[]> {
+        return this.repo.find({
+            where: {
+                listId: listId
+            },
+            relations: ['translationAttempts']
+        });
+    }
 
     onApplicationBootstrap() {
         this.pauseAllActiveRunsAtStartup()

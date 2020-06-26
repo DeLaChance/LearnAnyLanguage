@@ -52,9 +52,12 @@ export default function App() {
                     <Route key="5" path="/runs/active/:runId">
                         <ActiveRunPage />
                     </Route>
+                    <Route key="6" path="/runs/lists/:listId">
+                        <RunsPage />
+                    </Route>                         
                     <Route key="6" path="/runs/:runId">
                         <RunPage />
-                    </Route>        
+                    </Route>
                     <Route key="7" path="/runs">
                         <RunsPage />
                     </Route>                        

@@ -60,7 +60,6 @@ Then you can access the frontend at [http://localhost:8282](http://localhost:828
 
 ## TODO-list
 - Bugs 
-    * Button to go to active test 
     * Error when opening list
     * React issues
     * Demo video on Youtube

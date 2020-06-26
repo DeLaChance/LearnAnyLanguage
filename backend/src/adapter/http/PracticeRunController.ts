@@ -28,6 +28,11 @@ import { HttpResponseInterceptor } from "./HttpResponseInterceptor";
         return this.service.findOne(runId);
     }
 
+    @Get("lists/:listId")
+    findByListId(@Param("listId") listId: string): Promise<PracticeRun[]> {
+        return this.service.findByListId(listId);
+    }
+
     @Put(":runId/giveAnswer")
     giveAnswer(@Param("runId") runId: string, @Body() answerDto: AnswerDto): Promise<TranslationAttempt> {
         return this.service.giveAnswer(runId, answerDto.answer);

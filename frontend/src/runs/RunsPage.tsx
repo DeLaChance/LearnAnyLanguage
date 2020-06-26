@@ -10,9 +10,12 @@ import websocketClient from '../clients/BackendWebSocketClient';
 import { PracticeList } from '../domain/PracticeList';
 import { PracticeRun } from '../domain/PracticeRun';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
+import { useParams } from 'react-router-dom';
 
 
 export default function RunsPage() {
+
+    let { listIdParam } = useParams();
 
     // Hooks
     const [runs, setRuns] = useState<PracticeRun[]>([]);
@@ -20,20 +23,22 @@ export default function RunsPage() {
 
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
-        backendClient.fetchPracticeRuns()
-            .then(async runs => {
-                let uniqueListIds: string[] = Array.from(new Set(runs.map(run => run.listId)));
+        let practiceRunsPromise: Promise<PracticeRun[]> = listIdParam ? backendClient.fetchPracticeRunByListId(listIdParam)
+            : backendClient.fetchPracticeRuns();
 
-                let lists: PracticeList[] = await Promise.all(uniqueListIds.map(listId => 
-                    backendClient.fetchPracticeList(listId)
-                ));
+        practiceRunsPromise.then(async runs => {
+            let uniqueListIds: string[] = Array.from(new Set(runs.map(run => run.listId)));
 
-                let listsMap: Map<string, PracticeList> = new Map<string, PracticeList>();
-                lists.forEach(list => listsMap.set(list.id, list));
-                setListsMap(listsMap);
+            let lists: PracticeList[] = await Promise.all(uniqueListIds.map(listId => 
+                backendClient.fetchPracticeList(listId)
+            ));
 
-                setRuns(runs);
-            });
+            let listsMap: Map<string, PracticeList> = new Map<string, PracticeList>();
+            lists.forEach(list => listsMap.set(list.id, list));
+            setListsMap(listsMap);
+
+            setRuns(runs);
+        });
 
         const handleWebsocketData = (event: any) => {
             if (event.runId && event.name) {

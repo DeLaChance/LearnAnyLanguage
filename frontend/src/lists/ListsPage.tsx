@@ -56,7 +56,7 @@ export default function ListsPage() {
     const createPracticeListItem = (practiceList: PracticeList): React.ReactElement => {
         let editListRoute: string = `/lists/${practiceList.id}`;
         let startRunRoute: string = `/runs/${practiceList.id}/start`;
-        let viewRunsRoute: string = `/runs/${practiceList.id}`;
+        let viewRunsRoute: string = `/runs/lists/${practiceList.id}`;
         return (
             <ListItem button key={practiceList.id} className={classes.listItem}>
                 <ListItemText primary={practiceList.name} />
