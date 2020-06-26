@@ -21,7 +21,7 @@ import { TranslationAttempt } from '../domain/TranslationAttempt';
 
 const NOTIFICATION_FREQUENCY_MILLIS: number = 100;
 const MILLIS_PER_SECOND: number = 1000;
-const TIME_BETWEEN_ANSWERS_MILLIS: number = 2000;
+const TIME_BETWEEN_ANSWERS_MILLIS: number = 4000;
 
 @Injectable()
 export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implements OnApplicationBootstrap {
@@ -149,7 +149,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implemen
             
             practiceRun = await this.repo.findOneOrFail(runId);
             if (practiceRun.allAnswersGiven()) {
-                await this.finish(practiceRun.id);
+                this.finish(practiceRun.id);
             } else {
                 this.publishPracticeRunAnswerGivenEvent(practiceRun.id);                
             }
@@ -194,7 +194,7 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implemen
         const callback: (() => void) = () => {
             this.scheduleNextAnswerTimeOut(runId);
         };
-        const timeout = setTimeout(callback, TIME_BETWEEN_ANSWERS_MILLIS);        
+        const timeout = setTimeout(callback, TIME_BETWEEN_ANSWERS_MILLIS / 2);        
         this.schedulerRegistry.addTimeout(runId, timeout);
     }    
 
@@ -286,7 +286,8 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implemen
             return () => {
                 timeSpentOnCurrentWord += NOTIFICATION_FREQUENCY_MILLIS;
                 if (timeSpentOnCurrentWord >= timeOutInMillis) {
-                    this.timeOutAnswer(runId);
+                    this.timeOutAnswer(runId)
+                        .catch(error => Logger.error(`Error while trying to time out answer: ${error}.`));
                 } else {
                     this.sendRunningTestNotification(runId, timeSpentOnCurrentWord);
                 }
@@ -300,13 +301,15 @@ export class PracticeRunService extends TypeOrmCrudService<PracticeRun> implemen
 
         let practiceRun: PracticeRun = await this.repo.findOneOrFail(runId);
         const timeOutInMillis = practiceRun.timePerWord * MILLIS_PER_SECOND;
-        
-        const callback: (() => void) = generateIntervalCallback(timeOutInMillis);
-        const intervalId = setInterval(callback, NOTIFICATION_FREQUENCY_MILLIS);
-        this.schedulerRegistry.addInterval(runId, intervalId);
 
         Logger.log(`Scheduling answer timeout for run='${runId}' in ${timeOutInMillis}ms.`);
         this.publishPracticeRunAnswerCreatedEvent(runId);
+
+        setTimeout(() => {
+            const callback: (() => void) = generateIntervalCallback(timeOutInMillis);
+            const intervalId = setInterval(callback, NOTIFICATION_FREQUENCY_MILLIS);
+            this.schedulerRegistry.addInterval(runId, intervalId);
+        }, TIME_BETWEEN_ANSWERS_MILLIS / 2);
     }
 
     private sendRunningTestNotification(runId: string, timeSpentOnCurrentWord: number) {

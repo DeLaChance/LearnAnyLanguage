@@ -58,12 +58,13 @@ Then you can access the frontend at [http://localhost:8282](http://localhost:828
 
 ## TODO-list
 - Bugs 
-    * Time bar does not start at 0
+    * Button to go to active test 
+    * Error when opening list
     * React issues
-    * Final touch
+    * Demo video on Youtube
 
 - Make it in a docker container + start scripts
 - Code cleanup + refactor 
 
-- Demo video on Youtube
+
 

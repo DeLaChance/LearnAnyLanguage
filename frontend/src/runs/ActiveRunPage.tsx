@@ -22,7 +22,7 @@ export default function ActiveRunPage() {
     const [progress, setProgress] = useState<number>(0.0);
     const [answer, setAnswer] = useState<string>("");
     const [answerIsGivenOrTimeout, setAnswerIsGivenOrTimeout] = useState<boolean>(false);
-    const [correctAnswerIsgiven, setCorrectAnswerIsGiven] = useState<boolean>(false);
+    const [correctAnswerIsgiven, setCorrectAnswerIsGiven] = React.useState<boolean>(false);
 
     let { runId } = useParams();
 
@@ -113,10 +113,18 @@ export default function ActiveRunPage() {
                 console.log("Current answer has timed out.");
                 setAnswerIsGivenOrTimeout(true);
                 setCorrectAnswerIsGiven(false);
+                setProgress(100.0);
+                setAnswer("Correct answer is: " + practiceRun.currentTranslation.correctAnswer);                
             } else if (name === "PracticeRunAnswerGivenEvent") {
                 console.log("Answer was given.");
                 setAnswerIsGivenOrTimeout(true);
-                setCorrectAnswerIsGiven(answer === practiceRun.currentTranslation.correctAnswer);
+
+                if (answer === practiceRun.currentTranslation.correctAnswer) {
+                    setCorrectAnswerIsGiven(true);
+                } else {
+                    setAnswer("Correct answer is: " + practiceRun.currentTranslation.correctAnswer);                
+                    setCorrectAnswerIsGiven(false);
+                }
             } else if (name === "PracticeRunPausedEvent" || name === "PracticeRunStoppedEvent" || name === "PracticeRunRestartedEvent") {
                 resetState(practiceRun.id);
             }
@@ -125,9 +133,10 @@ export default function ActiveRunPage() {
 
     const resetState = (runId: string) => {
         console.log("Setting up for the next answer.");
-
         setProgress(0.0);
         setAnswer("");
+        setAnswerIsGivenOrTimeout(false);
+        setCorrectAnswerIsGiven(false);
 
         // TODO: could be done more efficiently than reloading entire practice run.
         backendClient.fetchPracticeRun(runId).then(run => setPracticeRun(run));
@@ -165,9 +174,9 @@ export default function ActiveRunPage() {
         };
 
         return (
-            <TextField error={correctAnswerIsgiven} className={answerIsGivenOrTimeout ? classes.textFieldSuccess : classes.textFieldError} 
+            <TextField error={answerIsGivenOrTimeout === true && correctAnswerIsgiven === false} className={answerIsGivenOrTimeout ? classes.textFieldSuccess : classes.textFieldError} 
                 id="filled-basic" label="Submit answer..." variant="outlined" value={answer} onChange={handleTextFieldChange} 
-                disabled={!practiceRun.isActive()}
+                disabled={!practiceRun.isActive() || answerIsGivenOrTimeout}
             />        
             
         );

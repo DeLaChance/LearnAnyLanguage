@@ -37,28 +37,28 @@ export default function App() {
                 <AppMenuBar />
 
                 <Switch>
-                    <Route path="/languages">
+                    <Route key="1" path="/languages">
                         <LanguagePage />
                     </Route>
-                    <Route path="/lists/:practiceListId">
+                    <Route key="2" path="/lists/:practiceListId">
                         <PracticeListPage />
                     </Route>
-                    <Route path="/lists">
+                    <Route key="3" path="/lists">
                         <ListsPage />
                     </Route>
-                    <Route path="/runs/:_practiceListId/start">
+                    <Route key="4" path="/runs/:_practiceListId/start">
                         <StartPracticeRunPage />
                     </Route>                            
-                    <Route path="/runs/active/:runId">
+                    <Route key="5" path="/runs/active/:runId">
                         <ActiveRunPage />
                     </Route>
-                    <Route path="/runs/:runId">
+                    <Route key="6" path="/runs/:runId">
                         <RunPage />
                     </Route>        
-                    <Route path="/runs">
+                    <Route key="7" path="/runs">
                         <RunsPage />
                     </Route>                        
-                    <Route path="/">                        
+                    <Route key="8" path="/">                        
                     </Route>                    
                 </Switch>
             </Router>
