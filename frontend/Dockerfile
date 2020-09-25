@@ -3,13 +3,14 @@ FROM node:latest AS frontend
 WORKDIR /root/frontend/
 
 COPY src ./src/
-RUN ls ./src/config/
-RUN sed -i 's/localhost\:8180/backend\:8180/' ./src/config/config.json
-RUN sed -i 's/localhost\:8181/proxy\:8181/' ./src/config/config.json
+COPY public ./public/
 
 COPY *.json ./
-RUN yarn --verbose install
+COPY .env ./
+RUN npm i
+RUN npm run build
+RUN npm i -g serve
 
 EXPOSE 8182
 
-CMD cd /root/ && npm run start
+CMD cd /root/frontend/ && serve -s build -p 8182

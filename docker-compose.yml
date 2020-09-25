@@ -20,9 +20,14 @@ services:
   proxy:
     image: proxy:latest
     restart: always
+    ports:
+      - 8181:8181
 
   frontend:
     image: frontend:latest
     restart: always
+    depends_on:
+      - db
+      - backend
     ports:
       - 8182:8182

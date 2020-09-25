@@ -34,7 +34,6 @@ You need to have a local PostGres database running at `localhost:5432`. You can 
     - `cd backend`
     - `docker build -t backend:latest .`
 
-
 ### Frontend
     - `cd frontend`
     - `docker build -t frontend:latest .`
@@ -50,7 +49,10 @@ You need to have a local PostGres database running at `localhost:5432`. You can 
 ### Run all at the same time
     - `docker compose up -d`
 
-Then you can access the frontend at [http://localhost:8282](http://localhost:8282) and the backend APIs at [http://localhost:8180](http://localhost:8180). The database runs at port `5432`.
+Then:
+ - you can access the frontend at [http://localhost:8282](http://localhost:8282) 
+ - and the backend API at [http://localhost:8180](http://localhost:8180)
+ - The database runs at `localhost:5432`.
 
 ## Word list file format
 Word lists need to be uploaded in self-defined `*.lst`-format. Examples are in [here](backend/example-lists/).
@@ -67,7 +69,7 @@ Word lists need to be uploaded in self-defined `*.lst`-format. Examples are in [
 - Open bugs 
     * Refresh needed sometimes. E.g. after uploading a list.
     * React issues.
-    * Docker build slow.
+
 
 
 
